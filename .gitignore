@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Environment variables, credentials & secrets
+.env
+.env.*
+*.env
+secrets.toml
+.streamlit/secrets.toml
+*.pem
+*.key
+
+# Databases & local state
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Personal resumes, private user files & upload caches
+# (Protects private resumes while preserving sample_resumes/ for evaluation)
+private/
+uploads/
+temp/
+temp_*
+user_data/
+*.log
+*.tmp
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
