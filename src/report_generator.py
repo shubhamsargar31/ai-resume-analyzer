@@ -126,7 +126,8 @@ def generate_markdown_report(analysis_data: Dict[str, Any]) -> str:
         "> **Note:** This resume analysis is an educational and career-advisory estimate generated via NLP, ",
         "> TF-IDF cosine similarity, and skill matrix comparison. It is NOT an automated hiring decision. ",
         "> In accordance with ethical AI guidelines, protected personal attributes (age, gender, ethnicity, ",
-        "> religion) are strictly excluded from evaluation."
+        "> religion) are strictly excluded from evaluation. Missing keywords do not always indicate missing ability — ",
+        "> candidates may possess equivalent competencies expressed through different terminology or experience."
     ])
 
     return "\n".join(lines)
@@ -349,7 +350,8 @@ def generate_pdf_report(analysis_data: Dict[str, Any]) -> bytes:
     elements.append(Paragraph(
         "<b>Ethical AI & Compliance Notice:</b> This report is generated algorithmically for educational guidance. "
         "It assesses solely technical skills and qualifications. Demographic characteristics (age, gender, ethnicity, religion) "
-        "are strictly omitted from extraction and evaluation. Match scores represent heuristic similarity estimates, not hiring decisions.",
+        "are strictly omitted from extraction and evaluation. Match scores represent heuristic similarity estimates, not hiring decisions. "
+        "Missing keywords do not always indicate missing ability — candidates may possess equivalent competencies expressed through different terminology.",
         ParagraphStyle("Notice", parent=styles["Normal"], fontName="Helvetica", fontSize=7.5, leading=10, textColor=colors.HexColor("#6B7280"))
     ))
 

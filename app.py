@@ -790,9 +790,13 @@ if nav_option == "📊 Dashboard":
         )
 
         if uploaded_file is not None:
-            st.info(f"📁 Selected: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
-            if st.button("⚡ Run Full AI Analysis", type="primary", use_container_width=True):
-                run_analysis(uploaded_file, uploaded_file.name)
+            MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+            if uploaded_file.size > MAX_FILE_SIZE:
+                st.error(f"File too large: {uploaded_file.size / (1024*1024):.1f} MB. Maximum allowed size is 10 MB.")
+            else:
+                st.info(f"📁 Selected: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
+                if st.button("⚡ Run Full AI Analysis", type="primary", use_container_width=True):
+                    run_analysis(uploaded_file, uploaded_file.name)
 
     with col_guarantee:
         st.markdown(
@@ -1529,7 +1533,8 @@ elif nav_option == "⚖️ Privacy & Compliance":
             <div style="font-size:0.88rem; color:#F3F6FC; line-height:1.5;">
                 This platform is an educational qualification-diagnostic tool. Matching scores reflect heuristic cosine similarities 
                 and skill coverage indices rather than automated hiring decisions. Demographic attributes (gender, age, marital status, 
-                nationality, religion) are strictly excluded from evaluation.
+                nationality, religion) are strictly excluded from evaluation. Missing keywords do not always indicate missing ability — 
+                candidates may possess equivalent competencies expressed through different terminology or experience.
             </div>
         </div>
         """,
