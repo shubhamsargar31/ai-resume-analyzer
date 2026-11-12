@@ -1280,6 +1280,106 @@ elif nav_option == "🔍 Skill Gap Analysis":
 
             st.markdown("</div>", unsafe_allow_html=True)
 
+        # Resume Improvement Suggestions
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+        with st.expander("💡 Resume Improvement Suggestions", expanded=False):
+            st.markdown(
+                """
+                <div class="saas-panel" style="border-left: 3px solid #648CFF;">
+                    <div class="saas-panel-header">
+                        <h4 class="saas-panel-title">🎯 Actionable Resume Enhancement Tips</h4>
+                        <span class="tier-badge tier-good">AI-GENERATED</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            suggestions = []
+
+            # Suggestion 1: Missing skills
+            if selected_role['missing_skills']:
+                missing_str = ", ".join(selected_role['missing_skills'][:3])
+                suggestions.append({
+                    "icon": "🔧",
+                    "title": "Bridge Critical Skill Gaps",
+                    "desc": f"Your resume lacks {len(selected_role['missing_skills'])} required skills for {selected_role['role_title']}: {missing_str}. Add these to your 'Skills' section or create projects demonstrating them.",
+                    "priority": "High"
+                })
+            else:
+                suggestions.append({
+                    "icon": "✅",
+                    "title": "Perfect Skill Alignment",
+                    "desc": f"You already possess all required skills for {selected_role['role_title']}. Focus on quantifying your impact with metrics (e.g., 'reduced latency by 40%', 'improved accuracy by 15%').",
+                    "priority": "Medium"
+                })
+
+            # Suggestion 2: Quantify achievements
+            suggestions.append({
+                "icon": "📊",
+                "title": "Quantify Your Impact",
+                "desc": "Replace vague descriptions with measurable outcomes. Example: 'Built a dashboard' → 'Built a Power BI dashboard reducing reporting time by 60% for 50+ stakeholders.'",
+                "priority": "High"
+            })
+
+            # Suggestion 3: Keyword optimization
+            if selected_role['missing_skills']:
+                missing_keywords = ", ".join(selected_role['missing_skills'][:2])
+                suggestions.append({
+                    "icon": "🔍",
+                    "title": "Optimize for ATS Keywords",
+                    "desc": f"Applicant Tracking Systems scan for exact keywords. Naturally incorporate '{missing_keywords}' into your experience bullets, not just the skills section.",
+                    "priority": "Medium"
+                })
+
+            # Suggestion 4: Project showcase
+            projects = results['profile'].get('projects', [])
+            if len(projects) < 2:
+                suggestions.append({
+                    "icon": "🚀",
+                    "title": "Add More Projects",
+                    "desc": "Include 2-3 substantial projects with tech stacks, problem statements, and measurable outcomes. Projects demonstrate practical application beyond coursework.",
+                    "priority": "Medium"
+                })
+            else:
+                suggestions.append({
+                    "icon": "🚀",
+                    "title": "Strengthen Project Descriptions",
+                    "desc": "For each project, add: (1) Problem you solved, (2) Your specific contribution, (3) Technologies used, (4) Measurable result or impact.",
+                    "priority": "Low"
+                })
+
+            # Suggestion 5: Tailor to role
+            suggestions.append({
+                "icon": "🎯",
+                "title": "Tailor Resume Per Application",
+                "desc": f"Create a customized version of your resume for each {selected_role['role_title']} application. Emphasize relevant projects and reorder skills to match the job description.",
+                "priority": "High"
+            })
+
+            # Display suggestions
+            for sug in suggestions:
+                priority_color = {"High": "#F59E0B", "Medium": "#648CFF", "Low": "#94A3B8"}[sug["priority"]]
+                st.markdown(
+                    f"""
+                    <div class="saas-panel" style="margin-bottom:10px; border-left: 3px solid {priority_color};">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <div style="font-size:1.5rem;">{sug['icon']}</div>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                    <span style="font-weight:700; color:#F3F6FC; font-size:0.9rem;">{sug['title']}</span>
+                                    <span style="font-size:0.7rem; font-weight:700; color:{priority_color}; text-transform:uppercase;">{sug['priority']} Priority</span>
+                                </div>
+                                <div style="font-size:0.82rem; color:#94A3B8; line-height:1.5;">{sug['desc']}</div>
+                            </div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            st.caption("💡 These suggestions are generated based on skill gap analysis and industry best practices. Always tailor your resume to the specific job description.")
+
 
 # =============================================================
 # VIEW 5: LEARNING ROADMAP
@@ -1516,6 +1616,23 @@ elif nav_option == "📥 Download Report":
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         with st.expander("👁️ Live Markdown Report Preview", expanded=True):
             st.markdown(md_content)
+
+        # Save reports to persistent reports/ directory
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+        reports_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reports")
+        os.makedirs(reports_dir, exist_ok=True)
+
+        if st.button("💾 Save Reports to Project Folder", type="secondary", use_container_width=True):
+            pdf_path = os.path.join(reports_dir, clean_filename)
+            md_path = os.path.join(reports_dir, clean_md_filename)
+            try:
+                with open(pdf_path, "wb") as f:
+                    f.write(pdf_bytes)
+                with open(md_path, "w", encoding="utf-8") as f:
+                    f.write(md_content)
+                st.success(f"Reports saved to `reports/` folder:\n- `{clean_filename}`\n- `{clean_md_filename}`")
+            except Exception as e:
+                st.error(f"Failed to save reports: {e}")
 
 
 # =============================================================

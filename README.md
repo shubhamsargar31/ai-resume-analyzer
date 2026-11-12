@@ -249,5 +249,58 @@ See [TESTING.md](TESTING.md) for full test specifications, boundary test cases, 
 
 ---
 
+## 🚀 Deployment Options
+
+### Option 1: Streamlit Cloud (Recommended - Free)
+See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions.
+
+### Option 2: Docker
+```bash
+docker build -t resume-analyzer .
+docker run -p 8501:8501 resume-analyzer
+```
+
+### Option 3: Docker Compose
+```bash
+docker-compose up -d
+```
+
+---
+
+## 📦 GitHub Repository
+
+This project is ready for GitHub. See [GITHUB_SETUP.md](GITHUB_SETUP.md) for detailed instructions.
+
+**Quick setup:**
+```bash
+git remote add origin https://github.com/YOUR_USERNAME/ai-resume-analyzer.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+## 📹 Demonstration
+
+- **Demo Guide:** [DEMO_GUIDE.md](DEMO_GUIDE.md)
+- **Video Script:** [DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md)
+
+---
+
+## 📋 Additional Documentation
+
+| Document | Description |
+|---|---|
+| [TESTING.md](TESTING.md) | Comprehensive test verification report |
+| [PROJECT_REPORT.md](PROJECT_REPORT.md) | Formal academic project report |
+| [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md) | In-depth architectural & algorithm details |
+| [FINAL_ACCEPTANCE_REPORT.md](FINAL_ACCEPTANCE_REPORT.md) | Acceptance criteria verification |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Deployment instructions (Streamlit Cloud, Render, Docker) |
+| [GITHUB_SETUP.md](GITHUB_SETUP.md) | GitHub repository setup guide |
+| [DEMO_GUIDE.md](DEMO_GUIDE.md) | Step-by-step demonstration script |
+| [DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md) | Video recording script |
+
+---
+
 ## 👥 Authors & Academic Submission
 Developed as a Major Academic Capstone Project in Computer Science and Engineering.

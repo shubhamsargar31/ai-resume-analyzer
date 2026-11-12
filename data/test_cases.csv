@@ -1,0 +1,16 @@
+test_id,test_name,test_type,input_file,expected_top_role,min_skills_detected,max_skills_detected,format,priority,status,notes
+TC-01,Data Scientist PDF,data_scientist.pdf,Data Scientist,5,20,PDF,High,PASS,Python/SQL/Pandas/NumPy/Scikit-Learn resume
+TC-02,Full Stack Developer PDF,full_stack_dev.pdf,Full Stack Developer,5,20,PDF,High,PASS,JavaScript/React/Node.js/Express resume
+TC-03,DevOps Engineer PDF,devops_engineer.pdf,DevOps Engineer,5,20,PDF,High,PASS,Docker/Kubernetes/AWS/Terraform resume
+TC-04,Frontend Developer DOCX,frontend_developer.docx,Frontend Developer,5,20,DOCX,High,PASS,React/TypeScript/Tailwind resume
+TC-05,Data Analyst DOCX,data_analyst.docx,Data Analyst,5,20,DOCX,High,PASS,SQL/Python/Power BI resume
+TC-06,Challenging Analytics PDF,Challenging_Resume_Neha_Kulkarni.pdf,Data Analyst,5,10,PDF,High,PASS,Non-standard headers CORE CAPABILITIES/SELECTED PROJECTS
+TC-07,Entry-level Data Analyst PDF,Dummy_Candidate_Resume_Aarav_Mehta.pdf,Data Analyst,5,10,PDF,High,PASS,Indian phone format +91
+TC-08,Invalid File Type,test_image.png,N/A,0,0,PNG,Medium,PASS,Should raise ResumeExtractionError
+TC-09,Empty PDF,empty.pdf,N/A,0,0,PDF,Medium,PASS,Should raise ResumeExtractionError for empty/scanned
+TC-10,Nonexistent File,non_existent.pdf,N/A,0,0,N/A,Low,PASS,Should raise ResumeExtractionError gracefully
+TC-11,C++ C# .NET Preservation,special_symbols.txt,N/A,0,0,TXT,Medium,PASS,Should preserve C++, C#, .NET, Node.js, CI/CD
+TC-12,Word Boundary Isolation,word_boundary.txt,N/A,0,0,TXT,Medium,PASS,"Go" should not match "Good morning"
+TC-13,Protected Attribute Stripping,protected_attrs.txt,N/A,0,0,TXT,High,PASS,Gender/Age/Marital Status should be redacted
+TC-14,Multi-page PDF Extraction,multipage.pdf,N/A,0,0,PDF,Medium,PASS,All pages should be extracted
+TC-15,DOCX Table Extraction,table_resume.docx,N/A,0,0,DOCX,Medium,PASS,Skills in tables should be extracted

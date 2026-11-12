@@ -51,3 +51,7 @@ desktop.ini
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Generated reports (keep directory structure, ignore contents)
+reports/*
+!reports/.gitkeep
