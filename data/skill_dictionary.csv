@@ -7,8 +7,8 @@ skill_id,skill_name,category,aliases,importance_weight,difficulty_level,estimate
 6,C#,Programming Languages,"c#,csharp,c sharp,.net core,dotnet",0.8,Intermediate,50,Microsoft Learn C# / freeCodeCamp C#,https://learn.microsoft.com/en-us/dotnet/csharp/
 7,Go,Programming Languages,"golang,go language,go lang",0.8,Intermediate,40,Tour of Go / Go by Example,https://go.dev/doc/
 8,Rust,Programming Languages,"rust,rustlang,cargo",0.75,Advanced,60,The Rust Programming Language Book,https://www.rust-lang.org/learn
-9,SQL,Databases & Storage,"sql,structured query language,ansi sql",1.0,Beginner,30,Khan Academy SQL / Mode SQL Tutorial,https://www.w3schools.com/sql/
-10,PostgreSQL,Databases & Storage,"postgres,postgresql,pgsql",0.9,Intermediate,35,PostgreSQL Tutorial / freeCodeCamp RDBMS,https://www.postgresql.org/docs/
+9,SQL,Databases & Storage,"sql,structured query language,ansi sql,queries,querying",1.0,Beginner,30,Khan Academy SQL / Mode SQL Tutorial,https://www.w3schools.com/sql/
+10,PostgreSQL,Databases & Storage,"postgres,postgresql,pgsql,psql",0.9,Intermediate,35,PostgreSQL Tutorial / freeCodeCamp RDBMS,https://www.postgresql.org/docs/
 11,MySQL,Databases & Storage,"mysql,maria db,mariadb",0.85,Beginner,30,MySQL Tutorial for Beginners,https://dev.mysql.com/doc/
 12,MongoDB,Databases & Storage,"mongodb,mongo,nosql,mongoose",0.85,Intermediate,30,MongoDB University M001,https://www.mongodb.com/docs/
 13,Redis,Databases & Storage,"redis,in-memory cache",0.75,Intermediate,20,Redis University / freeCodeCamp Redis,https://redis.io/docs/
@@ -23,34 +23,34 @@ skill_id,skill_name,category,aliases,importance_weight,difficulty_level,estimate
 22,Next.js,Web Development,"nextjs,next.js,ssr,server components",0.85,Intermediate,30,Next.js Learn Interactive Course,https://nextjs.org/docs
 23,Tailwind CSS,Web Development,"tailwind,tailwindcss,utility classes",0.8,Beginner,15,Tailwind CSS Official Tutorials,https://tailwindcss.com/docs
 24,Spring Boot,Web Development,"spring boot,spring framework,spring,microservices",0.85,Intermediate,50,Baeldung Spring Boot Tutorials,https://spring.io/guides
-25,REST API,Web Development,"rest api,restful api,restful,web api,postman",0.9,Beginner,20,RESTful API Design Best Practices / Postman Academy,https://restfulapi.net/
-26,GraphQL,Web Development,"graphql,apollo,schema,queries",0.75,Intermediate,25,How to GraphQL / Apollo Odyssey,https://graphql.org/learn/
+25,REST API,Web Development,"rest api,restful api,restful,web api,postman,rest apis,rest endpoints,api development",0.9,Beginner,20,RESTful API Design Best Practices / Postman Academy,https://restfulapi.net/
+26,GraphQL,Web Development,"graphql,apollo,graphql schema,graphql queries,graphql api",0.75,Intermediate,25,How to GraphQL / Apollo Odyssey,https://graphql.org/learn/
 27,Vue.js,Web Development,"vue,vuejs,vue.js,vue3",0.8,Intermediate,30,Vue.js Official Guide / freeCodeCamp Vue,https://vuejs.org/guide/
 28,Git,Cloud & DevOps,"git,github,gitlab,version control",0.95,Beginner,15,freeCodeCamp Git & GitHub / Pro Git Book,https://git-scm.com/doc
 29,Docker,Cloud & DevOps,"docker,container,containers,containerization,dockerfile,docker-compose",0.95,Intermediate,35,freeCodeCamp Docker / Docker Labs,https://docs.docker.com/get-started/
 30,Kubernetes,Cloud & DevOps,"kubernetes,k8s,kubectl,helm",0.9,Advanced,50,K8s Documentation / edX Introduction to Kubernetes,https://kubernetes.io/docs/home/
 31,AWS,Cloud & DevOps,"aws,amazon web services,ec2,s3,lambda,iam,cloudformation",0.9,Intermediate,50,AWS Skill Builder Cloud Practitioner,https://aws.amazon.com/documentation/
 32,Azure,Cloud & DevOps,"azure,microsoft azure,azure devops",0.8,Intermediate,45,Microsoft Learn Azure Fundamentals (AZ-900),https://learn.microsoft.com/azure/
-33,GCP,Cloud & DevOps,"gcp,google cloud,google cloud platform",0.8,Intermediate,45,Google Cloud Skills Boost,https://cloud.google.com/docs
+33,GCP,Cloud & DevOps,"gcp,google cloud,google cloud platform,bigquery,big query,cloud sql,cloud storage",0.8,Intermediate,45,Google Cloud Skills Boost,https://cloud.google.com/docs
 34,CI/CD,Cloud & DevOps,"ci/cd,cicd,continuous integration,continuous delivery,jenkins,github actions",0.85,Intermediate,25,GitHub Skills CI/CD / Jenkins Essentials,https://docs.github.com/en/actions
 35,Linux,Cloud & DevOps,"linux,bash,shell scripting,unix,ubuntu",0.85,Beginner,25,Linux Journey / freeCodeCamp Bash,https://www.kernel.org/doc/html/latest/
 36,Terraform,Cloud & DevOps,"terraform,iac,infrastructure as code",0.8,Intermediate,30,HashiCorp Developer Tutorials,https://developer.hashicorp.com/terraform/docs
 37,Pandas,Data Science & AI,"pandas,pd,dataframe",0.95,Beginner,30,freeCodeCamp Data Analysis with Python,https://pandas.pydata.org/docs/
-38,NumPy,Data Science & AI,"numpy,np,numerical arrays",0.9,Beginner,20,freeCodeCamp NumPy Full Course,https://numpy.org/doc/
-39,Scikit-Learn,Data Science & AI,"scikit-learn,sklearn,machine learning,scikit learn",0.95,Intermediate,40,Coursera Machine Learning Specialization (Andrew Ng),https://scikit-learn.org/stable/
-40,TensorFlow,Data Science & AI,"tensorflow,tf,keras",0.85,Advanced,55,freeCodeCamp TensorFlow 2.0 / DeepLearning.AI,https://www.tensorflow.org/tutorials
+38,NumPy,Data Science & AI,"numpy,np,numerical arrays,scipy,scientific python",0.9,Beginner,20,freeCodeCamp NumPy Full Course,https://numpy.org/doc/
+39,Scikit-Learn,Data Science & AI,"scikit-learn,sklearn,machine learning,scikit learn,svm,support vector machine,logistic regression,random forest,gradient boosting,clustering,k-means,feature engineering,cross-validation,shap,precision recall,precision/recall,roc-auc,roc auc,classification,regression",0.95,Intermediate,40,Coursera Machine Learning Specialization (Andrew Ng),https://scikit-learn.org/stable/
+40,TensorFlow,Data Science & AI,"tensorflow,keras",0.85,Advanced,55,freeCodeCamp TensorFlow 2.0 / DeepLearning.AI,https://www.tensorflow.org/tutorials
 41,PyTorch,Data Science & AI,"pytorch,torch,deep learning",0.9,Advanced,55,Deep Learning with PyTorch (official) / Fast.ai,https://pytorch.org/tutorials/
-42,Natural Language Processing,Data Science & AI,"nlp,natural language processing,spacy,nltk,huggingface,transformers,bert,llm,llms",0.9,Advanced,50,Hugging Face NLP Course,https://huggingface.co/learn/nlp-course/
+42,Natural Language Processing,Data Science & AI,"nlp,natural language processing,spacy,nltk,huggingface,transformers,bert,llm,llms,tf-idf,tfidf,text classification,sentiment analysis",0.9,Advanced,50,Hugging Face NLP Course,https://huggingface.co/learn/nlp-course/
 43,Computer Vision,Data Science & AI,"computer vision,cv,opencv,object detection,yolo,image processing",0.85,Advanced,50,freeCodeCamp OpenCV / Stanford CS231n,https://opencv.org/
-44,Data Visualization,Data Science & AI,"data visualization,matplotlib,seaborn,plotly,tableau,power bi,powerbi",0.85,Beginner,25,Kaggle Data Visualization / freeCodeCamp Power BI,https://plotly.com/python/
-45,Statistics & Probability,Data Science & AI,"statistics,probability,hypothesis testing,a/b testing,statistical analysis",0.85,Intermediate,35,Khan Academy Statistics / StatQuest with Josh Starmer,https://openstax.org/details/books/introductory-statistics
+44,Data Visualization,Data Science & AI,"data visualization,matplotlib,seaborn,plotly,tableau,power bi,powerbi,looker studio,excel,power query,pivottables,pivot tables,dashboard,dashboards,reporting",0.85,Beginner,25,Kaggle Data Visualization / freeCodeCamp Power BI,https://plotly.com/python/
+45,Statistics & Probability,Data Science & AI,"statistics,probability,hypothesis testing,a/b testing,ab testing,statistical analysis,cohort analysis,retention,funnel analysis,descriptive statistics,kpi design,root-cause analysis,statsmodels,time series,forecasting,mae,mape",0.85,Intermediate,35,Khan Academy Statistics / StatQuest with Josh Starmer,https://openstax.org/details/books/introductory-statistics
 46,Generative AI & LLMs,Data Science & AI,"genai,generative ai,llm,prompt engineering,rag,langchain,llamaindex,fine-tuning",0.9,Intermediate,35,DeepLearning.AI Generative AI for Everyone,https://www.deeplearning.ai/
-47,Apache Spark,Data Science & AI,"spark,pyspark,apache spark,big data,hadoop,databricks",0.8,Advanced,50,Databricks Academy Spark Essentials,https://spark.apache.org/docs/latest/
+47,Apache Spark,Data Science & AI,"spark,pyspark,apache spark,big data,hadoop,databricks,dbt,airflow,data engineering,etl,elt,data pipeline,data pipelines",0.8,Advanced,50,Databricks Academy Spark Essentials,https://spark.apache.org/docs/latest/
 48,MLOps,Data Science & AI,"mlops,machine learning operations,mlflow,wandb,model deployment,dvc",0.85,Intermediate,40,Made With ML MLOps Course,https://madewithml.com/
 49,Microservices,Software Engineering & Architecture,"microservices,microservice architecture,distributed systems",0.85,Advanced,40,Martin Fowler Microservices Guide,https://microservices.io/
 50,System Design,Software Engineering & Architecture,"system design,scalability,load balancer,caching,message queue,kafka,rabbitmq",0.9,Advanced,45,Grokking the System Design Interview / Primer,https://github.com/donnemartin/system-design-primer
 51,Kafka,Software Engineering & Architecture,"kafka,apache kafka,event streaming,message broker",0.85,Intermediate,35,Apache Kafka Quickstart / Confluent Developer,https://kafka.apache.org/documentation/
-52,Unit Testing,Software Engineering & Architecture,"unit testing,testing,pytest,jest,junit,mock,tdd",0.85,Beginner,20,Test Driven Development Guide / Real Python Pytest,https://docs.pytest.org/
+52,Unit Testing,Software Engineering & Architecture,"unit testing,unit tests,pytest,jest,junit,mock,tdd,test driven development,automated testing,test coverage",0.85,Beginner,20,Test Driven Development Guide / Real Python Pytest,https://docs.pytest.org/
 53,Agile / Scrum,Software Engineering & Architecture,"agile,scrum,kanban,jira,sprint,standup",0.8,Beginner,15,Scrum Alliance Basics / Atlassian Agile Coach,https://www.scrumguides.org/
 54,Design Patterns,Software Engineering & Architecture,"design patterns,gang of four,solid principles,clean code,refactoring",0.8,Intermediate,30,Refactoring.Guru Design Patterns,https://refactoring.guru/design-patterns
 55,Cybersecurity,Cybersecurity & Networking,"cybersecurity,infosec,network security,owasp,penetration testing,cryptography",0.85,Intermediate,50,TryHackMe Pre-Security / OWASP Top 10,https://owasp.org/www-project-top-ten/

@@ -70,29 +70,55 @@ class RoadmapGenerator:
         if not phase_3 and len(phase_2) > 2:
             phase_3.append(phase_2.pop())
 
-        phases = [
-            {
-                "phase_number": 1,
-                "phase_name": "Phase 1: Foundational Syntax & Core Concepts",
-                "duration": "Weeks 1 - 2 (approx. 10-15 hrs/wk)",
-                "objective": "Establish fundamental competency and grasp essential syntax and libraries.",
-                "skills": phase_1
-            },
-            {
-                "phase_number": 2,
-                "phase_name": "Phase 2: Hands-on Frameworks & Core Engineering",
-                "duration": "Weeks 3 - 4 (approx. 15 hrs/wk)",
-                "objective": "Build practical APIs, modules, and apply frameworks to real-world datasets/apps.",
-                "skills": phase_2
-            },
-            {
-                "phase_number": 3,
-                "phase_name": "Phase 3: Production Architecture, Testing & Deployment",
-                "duration": "Weeks 5 - 6+ (approx. 15 hrs/wk)",
-                "objective": "Containerize, test, scale, and integrate systems ready for enterprise deployment.",
-                "skills": phase_3
-            }
-        ]
+        # Handle perfect match case: no missing skills
+        if len(missing_skills) == 0:
+            phases = [
+                {
+                    "phase_number": 1,
+                    "phase_name": "Phase 1: Advanced Specialization & Deep Dive",
+                    "duration": "Weeks 1 - 4 (approx. 10-15 hrs/wk)",
+                    "objective": "You already meet all required competencies. Focus on deepening expertise, exploring advanced specializations, and building portfolio depth.",
+                    "skills": []
+                },
+                {
+                    "phase_number": 2,
+                    "phase_name": "Phase 2: Production Excellence & Leadership",
+                    "duration": "Weeks 5 - 8 (approx. 15 hrs/wk)",
+                    "objective": "Strengthen production readiness, system design, mentoring, and cross-functional collaboration skills.",
+                    "skills": []
+                },
+                {
+                    "phase_number": 3,
+                    "phase_name": "Phase 3: Strategic Impact & Innovation",
+                    "duration": "Weeks 9 - 12+ (approx. 15 hrs/wk)",
+                    "objective": "Lead technical initiatives, drive architectural decisions, mentor junior engineers, and contribute to organizational strategy.",
+                    "skills": []
+                }
+            ]
+        else:
+            phases = [
+                {
+                    "phase_number": 1,
+                    "phase_name": "Phase 1: Foundational Syntax & Core Concepts",
+                    "duration": "Weeks 1 - 2 (approx. 10-15 hrs/wk)",
+                    "objective": "Establish fundamental competency and grasp essential syntax and libraries.",
+                    "skills": phase_1
+                },
+                {
+                    "phase_number": 2,
+                    "phase_name": "Phase 2: Hands-on Frameworks & Core Engineering",
+                    "duration": "Weeks 3 - 4 (approx. 15 hrs/wk)",
+                    "objective": "Build practical APIs, modules, and apply frameworks to real-world datasets/apps.",
+                    "skills": phase_2
+                },
+                {
+                    "phase_number": 3,
+                    "phase_name": "Phase 3: Production Architecture, Testing & Deployment",
+                    "duration": "Weeks 5 - 6+ (approx. 15 hrs/wk)",
+                    "objective": "Containerize, test, scale, and integrate systems ready for enterprise deployment.",
+                    "skills": phase_3
+                }
+            ]
 
         # Generate Capstone Project Ideas combining existing skills + new missing skills
         project_ideas = self._generate_capstone_projects(role_title, matched_skills, missing_skills)

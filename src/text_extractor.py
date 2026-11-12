@@ -43,14 +43,16 @@ def extract_text_from_pdf(file_input: Union[str, bytes, io.BytesIO]) -> str:
         if isinstance(file_input, (bytes, bytearray)):
             stream = io.BytesIO(file_input)
         elif isinstance(file_input, io.BytesIO):
-            stream = file_input
-            stream.seek(0)
+            # Always copy to a fresh BytesIO to avoid UploadedFile buffering issues
+            data = file_input.read()
+            file_input.seek(0)
+            stream = io.BytesIO(data)
         elif isinstance(file_input, str):
             if not os.path.exists(file_input):
                 raise ResumeExtractionError(f"File not found: {file_input}")
             stream = open(file_input, "rb")
         else:
-            # E.g. Streamlit UploadedFile
+            # E.g. Streamlit UploadedFile (non-BytesIO fallback)
             stream = io.BytesIO(file_input.read())
             file_input.seek(0)
 
@@ -103,14 +105,16 @@ def extract_text_from_docx(file_input: Union[str, bytes, io.BytesIO]) -> str:
         if isinstance(file_input, (bytes, bytearray)):
             stream = io.BytesIO(file_input)
         elif isinstance(file_input, io.BytesIO):
-            stream = file_input
-            stream.seek(0)
+            # Always copy to a fresh BytesIO to avoid UploadedFile buffering issues
+            data = file_input.read()
+            file_input.seek(0)
+            stream = io.BytesIO(data)
         elif isinstance(file_input, str):
             if not os.path.exists(file_input):
                 raise ResumeExtractionError(f"File not found: {file_input}")
             stream = file_input
         else:
-            # Streamlit UploadedFile
+            # Streamlit UploadedFile (non-BytesIO fallback)
             stream = io.BytesIO(file_input.read())
             file_input.seek(0)
 

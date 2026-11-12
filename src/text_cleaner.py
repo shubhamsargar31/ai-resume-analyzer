@@ -11,12 +11,12 @@ from typing import Dict, Optional, List, Tuple
 
 # Regex patterns for common resume sections
 SECTION_PATTERNS = {
-    "skills": r"(?i)(?:technical\s+skills|skills\s*(?:&|and)\s*technologies|core\s+competencies|technical\s+expertise|skills|technologies|tools\s*(?:&|and)\s*skills)",
-    "experience": r"(?i)(?:work\s+experience|professional\s+experience|experience|employment\s+history|internships|work\s+history)",
-    "education": r"(?i)(?:education|academic\s+background|academic\s+qualifications|educational\s+history|academics)",
-    "projects": r"(?i)(?:projects|academic\s+projects|personal\s+projects|key\s+projects|portfolio|technical\s+projects)",
-    "certifications": r"(?i)(?:certifications|licenses\s*(?:&|and)\s*certifications|certificates|professional\s+certifications|courses)",
-    "achievements": r"(?i)(?:achievements|awards|honors|publications|extracurricular)",
+    "skills": r"(?i)(?:technical\s+skills|skills\s*(?:&|and)\s*technologies|core\s+competencies|core\s+capabilities|key\s+capabilities|key\s+competencies|technical\s+expertise|skills|technologies|tools|keywords|core\s+skills|key\s+skills)",
+    "experience": r"(?i)(?:work\s+experience|professional\s+experience|experience|employment\s+history|internships|work\s+history|professional\s+background|career\s+history)",
+    "education": r"(?i)(?:education|academic\s+background|academic\s+qualifications|educational\s+history|academics|qualifications|academic\s+record)",
+    "projects": r"(?i)(?:selected\s+projects|key\s+projects|notable\s+projects|academic\s+projects|personal\s+projects|projects|portfolio|technical\s+projects|project\s+experience)",
+    "certifications": r"(?i)(?:certifications|licenses\s*(?:&|and)\s*certifications|certificates|professional\s+certifications|courses|certifications\s*(?:&|and)\s*development|certifications\s+and\s+development)",
+    "achievements": r"(?i)(?:achievements|awards|honors|publications|extracurricular|selected\s+achievements|key\s+achievements)",
 }
 
 
@@ -138,6 +138,7 @@ def extract_sections(text: str) -> Dict[str, str]:
         "education": "",
         "projects": "",
         "certifications": "",
+        "achievements": "",
         "other": ""
     }
 
@@ -190,8 +191,12 @@ def extract_contact_info(text: str) -> Dict[str, Optional[str]]:
     if email_match:
         info["email"] = email_match.group(0)
 
-    # Phone
-    phone_match = re.search(r"(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}", text)
+    # Phone - supports international formats including country codes
+    # Matches: +91 90000 11111, +1-555-123-4567, (555) 123-4567, 555-123-4567, etc.
+    phone_match = re.search(
+        r"(?:\+\d{1,3}[-.\s]?)?\(?\d[\d\s().-]{8,15}\d",
+        text
+    )
     if phone_match:
         info["phone"] = phone_match.group(0).strip()
 
@@ -204,6 +209,22 @@ def extract_contact_info(text: str) -> Dict[str, Optional[str]]:
     github_match = re.search(r"(?:https?://)?(?:www\.)?github\.com/[A-Za-z0-9_-]+", text, re.IGNORECASE)
     if github_match:
         info["github"] = github_match.group(0)
+
+    # Portfolio / personal website
+    portfolio_match = re.search(
+        r"(?:portfolio|website|personal\s+site|blog)\s*[:\-]?\s*((?:https?://)?(?:www\.)?[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?:/[A-Za-z0-9_-]+)?)",
+        text, re.IGNORECASE
+    )
+    if portfolio_match:
+        info["portfolio"] = portfolio_match.group(1).strip()
+    else:
+        # Try bare domain patterns that look like personal sites
+        bare_portfolio = re.search(
+            r"(?:^|\s)([a-z0-9-]+\.(?:com|dev|io|me|example|demo|site|app))(?=\s|$|\|)",
+            text, re.IGNORECASE
+        )
+        if bare_portfolio and "github" not in bare_portfolio.group(1).lower() and "linkedin" not in bare_portfolio.group(1).lower():
+            info["portfolio"] = bare_portfolio.group(1).strip()
 
     return info
 

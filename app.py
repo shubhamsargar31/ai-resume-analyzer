@@ -1,6 +1,7 @@
 """
 AI Resume Analyzer & Job Recommendation System
-Main Streamlit Application
+Design Concept: AI Career Intelligence Platform (Premium SaaS Dark Theme)
+Inspired by Linear, Stripe, and modern cloud analytics platforms.
 """
 
 import os
@@ -12,7 +13,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Import core system modules
+# Import core system modules (backend logic remains 100% unchanged)
 from src.text_extractor import extract_resume_text, ResumeExtractionError
 from src.text_cleaner import clean_text, extract_sections, extract_contact_info, sanitize_protected_data
 from src.skill_extractor import SkillExtractor
@@ -25,160 +26,505 @@ from src.database import DatabaseManager
 
 # Page Configuration
 st.set_page_config(
-    page_title="AI Resume Analyzer & Job Matcher",
-    page_icon="💼",
+    page_title="Career Intelligence Platform | AI Resume Analyzer",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Professional CSS Styling
-CUSTOM_CSS = """
+# Premium SaaS Dark Theme Stylesheet
+SAAS_THEME_CSS = """
 <style>
-    /* Global Styles */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
     
+    /* Global Reset & Base */
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        background-color: #0B1020 !important;
+        color: #F3F6FC !important;
+    }
+
+    /* Hide Default Streamlit Chrome */
+    #MainMenu { visibility: hidden; }
+    footer { visibility: hidden; }
+    header[data-testid="stHeader"] {
+        background-color: rgba(11, 16, 32, 0.85) !important;
+        backdrop-filter: blur(12px) !important;
     }
 
     /* Main Container Padding */
     .main .block-container {
-        padding-top: 1.8rem;
-        padding-bottom: 3rem;
+        padding-top: 1.5rem !important;
+        padding-bottom: 3.5rem !important;
+        max-width: 1400px;
     }
 
-    /* Hero Banner */
-    .hero-banner {
-        background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #0D9488 100%);
-        color: white;
-        padding: 24px 32px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #111827 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
     }
-    .hero-banner h1 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin: 0 0 8px 0;
-        color: #FFFFFF !important;
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #111827 !important;
+        padding-top: 1.2rem;
     }
-    .hero-banner p {
+
+    /* Sidebar Brand Header */
+    .brand-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 6px 18px 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 16px;
+    }
+    .brand-logo-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #27D3C2 0%, #648CFF 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #0B1020;
+        box-shadow: 0 4px 14px rgba(39, 211, 194, 0.35);
+    }
+    .brand-text-title {
         font-size: 1.05rem;
-        opacity: 0.95;
+        font-weight: 700;
+        color: #F3F6FC;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+    .brand-text-subtitle {
+        font-size: 0.72rem;
+        color: #27D3C2;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    /* Navigation Radio Items */
+    [data-testid="stSidebar"] [data-testid="stRadio"] > div {
+        gap: 4px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label {
+        background: transparent !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        margin-bottom: 2px !important;
+        color: #94A3B8 !important;
+        font-size: 0.88rem !important;
+        font-weight: 500 !important;
+        transition: all 0.15s ease-in-out !important;
+        border: 1px solid transparent !important;
+        cursor: pointer !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+        background: rgba(255, 255, 255, 0.04) !important;
+        color: #F3F6FC !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+        background: rgba(39, 211, 194, 0.1) !important;
+        color: #27D3C2 !important;
+        font-weight: 600 !important;
+        border-color: rgba(39, 211, 194, 0.3) !important;
+    }
+
+    /* User Profile Footer in Sidebar */
+    .user-profile-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #171F32;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        margin-top: 24px;
+    }
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #648CFF, #27D3C2);
+        color: #0B1020;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .user-meta-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #F3F6FC;
+        line-height: 1.2;
+    }
+    .user-meta-role {
+        font-size: 0.72rem;
+        color: #94A3B8;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .status-dot-live {
+        width: 6px;
+        height: 6px;
+        background-color: #27D3C2;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px #27D3C2;
+    }
+
+    /* SaaS Hero Banner */
+    .saas-hero {
+        background: radial-gradient(ellipse at 80% -20%, rgba(100, 140, 255, 0.15) 0%, rgba(39, 211, 194, 0.08) 40%, rgba(11, 16, 32, 0) 70%), #171F32;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .saas-hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #27D3C2, #648CFF, transparent);
+    }
+    .hero-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(39, 211, 194, 0.12);
+        border: 1px solid rgba(39, 211, 194, 0.3);
+        color: #27D3C2;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+    .hero-title-text {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #F3F6FC !important;
+        letter-spacing: -0.03em;
+        margin: 0 0 8px 0;
+        line-height: 1.2;
+    }
+    .hero-title-gradient {
+        background: linear-gradient(135deg, #27D3C2 0%, #648CFF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero-desc-text {
+        font-size: 0.98rem;
+        color: #94A3B8 !important;
         margin: 0;
-        color: #E2E8F0 !important;
+        max-width: 820px;
+        line-height: 1.5;
     }
 
     /* Metric Cards */
-    .metric-card {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
+    .saas-metric-card {
+        background: #171F32;
+        border: 1px solid #232F4A;
         border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        padding: 20px;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
     }
-    .metric-card:hover {
+    .saas-metric-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-color: rgba(39, 211, 194, 0.4);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
-    .metric-title {
-        font-size: 0.85rem;
-        text-transform: uppercase;
+    .metric-card-label {
+        font-size: 0.78rem;
         font-weight: 600;
-        color: #6B7280;
-        letter-spacing: 0.05em;
+        color: #94A3B8;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         margin-bottom: 6px;
     }
-    .metric-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #111827;
+    .metric-card-val {
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #F3F6FC;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
     }
-    .metric-subtitle {
-        font-size: 0.82rem;
-        color: #059669;
-        margin-top: 4px;
+    .metric-card-sub {
+        font-size: 0.8rem;
+        color: #27D3C2;
+        margin-top: 6px;
+        font-weight: 500;
     }
 
-    /* Skill Badges */
-    .badge-matched {
-        display: inline-block;
-        background-color: #DEF7EC;
-        color: #03543F;
-        border: 1px solid #BCF0DA;
+    /* SaaS Panels */
+    .saas-panel {
+        background-color: #171F32;
+        border: 1px solid #232F4A;
+        border-radius: 14px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .saas-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .saas-panel-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #F3F6FC;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    /* Role Cards */
+    .role-recommend-card {
+        background: #171F32;
+        border: 1px solid #232F4A;
+        border-radius: 14px;
+        padding: 22px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+    }
+    .role-recommend-card:hover {
+        transform: translateY(-3px);
+        border-color: #648CFF;
+        box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4);
+    }
+    .role-card-rank {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #94A3B8;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .role-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #F3F6FC;
+        margin: 6px 0 2px 0;
+        letter-spacing: -0.02em;
+    }
+    .role-card-meta {
+        font-size: 0.8rem;
+        color: #94A3B8;
+        margin-bottom: 14px;
+    }
+    .role-score-display {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin: 12px 0 16px 0;
+    }
+    .role-score-number {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #27D3C2;
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+    .role-score-label {
+        font-size: 0.78rem;
+        color: #94A3B8;
+        font-weight: 500;
+    }
+
+    /* Skill Tags */
+    .skill-tag-matched {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(39, 211, 194, 0.1);
+        color: #27D3C2;
+        border: 1px solid rgba(39, 211, 194, 0.28);
+        border-radius: 6px;
         padding: 4px 10px;
-        border-radius: 20px;
         font-size: 0.82rem;
         font-weight: 600;
         margin: 3px 4px;
     }
-    .badge-missing {
-        display: inline-block;
-        background-color: #FDE8E8;
-        color: #9B1C1C;
-        border: 1px solid #F8B4B4;
+    .skill-tag-missing {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(245, 158, 11, 0.1);
+        color: #F59E0B;
+        border: 1px solid rgba(245, 158, 11, 0.28);
+        border-radius: 6px;
         padding: 4px 10px;
-        border-radius: 20px;
         font-size: 0.82rem;
         font-weight: 600;
         margin: 3px 4px;
     }
-    .badge-skill {
-        display: inline-block;
-        background-color: #EBF5FF;
-        color: #1E429F;
-        border: 1px solid #C3DDFD;
+    .skill-tag-neutral {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(100, 140, 255, 0.08);
+        color: #ADC3FF;
+        border: 1px solid rgba(100, 140, 255, 0.2);
+        border-radius: 6px;
         padding: 4px 10px;
-        border-radius: 20px;
         font-size: 0.82rem;
         font-weight: 500;
         margin: 3px 4px;
     }
-    .badge-preferred {
-        display: inline-block;
-        background-color: #FEF3C7;
-        color: #92400E;
-        border: 1px solid #FDE68A;
+    .skill-tag-preferred {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(167, 139, 250, 0.1);
+        color: #C4B5FD;
+        border: 1px solid rgba(167, 139, 250, 0.28);
+        border-radius: 6px;
         padding: 4px 10px;
-        border-radius: 20px;
         font-size: 0.82rem;
         font-weight: 600;
         margin: 3px 4px;
     }
 
-    /* Card Panels */
-    .custom-card {
-        background-color: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    /* Status Pill */
-    .status-pill {
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
+    /* Tier Status Pills */
+    .tier-badge {
         display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .tier-excellent { background: rgba(39, 211, 194, 0.15); color: #27D3C2; border: 1px solid rgba(39, 211, 194, 0.3); }
+    .tier-good { background: rgba(100, 140, 255, 0.15); color: #648CFF; border: 1px solid rgba(100, 140, 255, 0.3); }
+    .tier-moderate { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .tier-low { background: rgba(244, 63, 94, 0.15); color: #F43F5E; border: 1px solid rgba(244, 63, 94, 0.3); }
+
+    /* Timeline Component */
+    .timeline-node {
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 22px;
+    }
+    .timeline-node::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        bottom: -22px;
+        width: 2px;
+        background: #232F4A;
+    }
+    .timeline-node:last-child::before {
+        display: none;
+    }
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #27D3C2;
+        border: 3px solid #171F32;
+        box-shadow: 0 0 10px rgba(39, 211, 194, 0.6);
     }
 
-    /* Ethical banner */
-    .ethical-banner {
-        background-color: #F8FAFC;
-        border-left: 4px solid #0D9488;
-        padding: 12px 16px;
-        border-radius: 6px;
-        font-size: 0.88rem;
-        color: #334155;
-        margin-bottom: 16px;
+    /* Streamlit Control Overrides */
+    .stButton > button {
+        background: linear-gradient(135deg, #27D3C2 0%, #15B8A6 100%) !important;
+        color: #0B1020 !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.55rem 1.2rem !important;
+        box-shadow: 0 4px 14px rgba(39, 211, 194, 0.25) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba(39, 211, 194, 0.4) !important;
+    }
+    .stButton > button[kind="secondary"] {
+        background: #171F32 !important;
+        color: #F3F6FC !important;
+        border: 1px solid #232F4A !important;
+        box-shadow: none !important;
+    }
+    .stButton > button[kind="secondary"]:hover {
+        background: #202B46 !important;
+        border-color: #648CFF !important;
+    }
+
+    /* File Uploader Container */
+    [data-testid="stFileUploader"] {
+        background-color: #171F32 !important;
+        border: 2px dashed #2A3859 !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        transition: all 0.25s ease !important;
+    }
+    [data-testid="stFileUploader"]:hover {
+        border-color: #27D3C2 !important;
+        box-shadow: 0 0 18px rgba(39, 211, 194, 0.15) !important;
+    }
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: transparent !important;
+    }
+
+    /* Input & Select Boxes */
+    div[data-baseweb="select"] {
+        background-color: #171F32 !important;
+        border: 1px solid #232F4A !important;
+        border-radius: 8px !important;
+    }
+    div[data-baseweb="select"] > div {
+        background-color: #171F32 !important;
+        color: #F3F6FC !important;
+    }
+    div[data-baseweb="popover"], div[data-baseweb="menu"] {
+        background-color: #171F32 !important;
+        border: 1px solid #232F4A !important;
+    }
+
+    /* Expanders */
+    [data-testid="stExpander"] {
+        background-color: #171F32 !important;
+        border: 1px solid #232F4A !important;
+        border-radius: 10px !important;
+        margin-bottom: 12px !important;
+    }
+    [data-testid="stExpander"] details summary {
+        color: #F3F6FC !important;
+        font-weight: 600 !important;
+    }
+
+    /* Dataframe Table Container */
+    [data-testid="stDataFrame"] {
+        background-color: #171F32 !important;
+        border: 1px solid #232F4A !important;
+        border-radius: 10px !important;
     }
 </style>
 """
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+st.markdown(SAAS_THEME_CSS, unsafe_allow_html=True)
 
 
 # Initialize Session State
@@ -198,42 +544,44 @@ if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
 
 if "active_tab" not in st.session_state:
-    st.session_state.active_tab = "Dashboard & Upload"
+    st.session_state.active_tab = "📊 Dashboard"
 
 
 # Helper function to run analysis
 def run_analysis(file_object, file_name: str):
     """Executes the complete end-to-end analysis workflow."""
-    with st.spinner("Processing resume..."):
-        progress_bar = st.progress(0, text="Reading and extracting text...")
-        
+    try:
+        progress_bar = st.progress(0, text="Ingesting document byte stream...")
+
         # 1. Text Extraction
         try:
             raw_text, file_type = extract_resume_text(file_object, file_name=file_name)
         except ResumeExtractionError as e:
             st.error(f"Extraction Error: {str(e)}")
+            progress_bar.empty()
             return
         except Exception as e:
             st.error(f"Unexpected file error: {str(e)}")
+            progress_bar.empty()
             return
 
-        progress_bar.progress(25, text="Normalizing & segmenting resume sections...")
-        
+        progress_bar.progress(25, text="Normalizing & segmenting sections...")
+
         # 2. Text Cleaning & Privacy Sanitization
         sanitized_text = sanitize_protected_data(raw_text)
         cleaned_text = clean_text(sanitized_text)
         sections = extract_sections(cleaned_text)
         contact_info = extract_contact_info(raw_text)
 
-        progress_bar.progress(50, text="Detecting technical skills & profile attributes...")
-        
+        progress_bar.progress(50, text="Matching skills against 60 industry competencies...")
+
         # 3. Skill & Profile Extraction
         skill_data = skill_extractor.extract_skills(cleaned_text)
         detected_skills = skill_data["detected_skills"]
         profile_data = extract_full_profile(cleaned_text, sections)
 
-        progress_bar.progress(75, text="Calculating TF-IDF similarities & role matches...")
-        
+        progress_bar.progress(75, text="Computing TF-IDF cosine similarity across 10 roles...")
+
         # 4. Job Matching & Recommendations
         recommendations = recommender.recommend_top_roles(cleaned_text, detected_skills, top_n=3)
         top_roles = recommendations["top_recommendations"]
@@ -242,8 +590,8 @@ def run_analysis(file_object, file_name: str):
         # 5. Roadmap Generation
         roadmap = roadmap_gen.generate_roadmap(primary_role, detected_skills)
 
-        progress_bar.progress(95, text="Finalizing analysis report...")
-        
+        progress_bar.progress(95, text="Compiling intelligence diagnostics...")
+
         # Package Results
         candidate_name = contact_info.get("email") or "Evaluated Candidate"
         if candidate_name and "@" in candidate_name:
@@ -280,26 +628,48 @@ def run_analysis(file_object, file_name: str):
                 skill_coverage=primary_role.get("skill_coverage_pct", 0.0)
             )
         except Exception:
-            pass # Silent log fail to never interrupt user experience
+            pass
 
         progress_bar.progress(100, text="Analysis Complete!")
         time.sleep(0.3)
         progress_bar.empty()
-        
+
         st.session_state.analysis_results = results
-        st.success("Resume successfully analyzed! Explore the tabs above to view recommendations.")
+        st.success("Analysis complete. Explore the intelligence panels below.")
+
+    except Exception as e:
+        st.error(f"Analysis failed: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc(), language="python")
 
 
-# SIDEBAR
+# =============================================================
+# LEFT SIDEBAR: APPLICATION SHELL & CONTROLS
+# =============================================================
 with st.sidebar:
-    st.markdown("### 💼 AI Resume Analyzer")
-    st.caption("Intelligent Career Recommendation Engine")
-    st.markdown("---")
+    # Custom Application Brand
+    st.markdown(
+        """
+        <div class="brand-container">
+            <div class="brand-logo-icon">⚡</div>
+            <div>
+                <div class="brand-text-title">VECTRA INTELLIGENCE</div>
+                <div class="brand-text-subtitle">AI Career Platform</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Sample Resumes for Quick Testing & Evaluation
-    st.markdown("#### ⚡ Quick Demo Samples")
-    st.caption("Select a pre-built anonymized resume to test immediately:")
-
+    # Demo Quick Selector
+    st.markdown(
+        """
+        <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">
+            ⚡ Demo Benchmarks
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     samples_dir = os.path.join(os.path.dirname(__file__), "sample_resumes")
     sample_files = {
         "Data Scientist (PDF)": "sample_data_scientist.pdf",
@@ -310,241 +680,421 @@ with st.sidebar:
     }
 
     selected_sample = st.selectbox(
-        "Choose a sample resume:",
-        ["-- Select Sample --"] + list(sample_files.keys()),
-        index=0
+        "Load Anonymized Benchmark:",
+        ["-- Select Benchmark --"] + list(sample_files.keys()),
+        index=0,
+        label_visibility="collapsed"
     )
 
     if st.button("Load & Analyze Sample", type="secondary", use_container_width=True):
-        if selected_sample != "-- Select Sample --":
+        if selected_sample != "-- Select Benchmark --":
             sample_rel_path = os.path.join(samples_dir, sample_files[selected_sample])
             if os.path.exists(sample_rel_path):
                 with open(sample_rel_path, "rb") as f:
                     file_bytes = io.BytesIO(f.read())
                 run_analysis(file_bytes, sample_files[selected_sample])
             else:
-                st.error("Sample file not found on disk.")
+                st.error("Benchmark file not found on disk.")
         else:
-            st.warning("Please choose a sample resume from the dropdown.")
+            st.warning("Select a sample resume from the dropdown.")
 
-    st.markdown("---")
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
     
-    # Navigation Radio
-    st.markdown("#### 🧭 Navigation")
+    # Navigation
+    st.markdown(
+        """
+        <div style="font-size:0.75rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">
+            🧭 Navigation
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     nav_option = st.radio(
-        "Go to Section:",
+        "Navigation Menu",
         [
-            "🚀 Dashboard & Upload",
+            "📊 Dashboard",
+            "📄 Resume Analyzer",
             "🎯 Job Recommendations",
             "🔍 Skill Gap Analysis",
             "🗺️ Learning Roadmap",
-            "📊 Job & Skill Database",
+            "📜 Analysis History",
+            "⚙️ Job & Skill Catalog",
             "📥 Download Report",
-            "⚖️ Ethical AI & Privacy"
+            "⚖️ Privacy & Compliance"
         ],
-        index=0
+        index=0,
+        label_visibility="collapsed"
     )
 
-    st.markdown("---")
+    # User Profile / System Status Badge at Bottom
     st.markdown(
         """
-        <div style='font-size:0.78rem; color:#6B7280; text-align:center;'>
-            <b>AI Resume Analyzer v1.0.0</b><br/>
-            Engineered with Streamlit, Scikit-learn & TF-IDF.<br/>
-            <i>College Major Project Submission</i>
+        <div class="user-profile-badge">
+            <div class="user-avatar">AI</div>
+            <div>
+                <div class="user-meta-name">Enterprise Analyst</div>
+                <div class="user-meta-role">
+                    <span class="status-dot-live"></span> NLP Engine Online
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 
-# MAIN APP HEADER
+# =============================================================
+# TOP HEADER / BANNER
+# =============================================================
 st.markdown(
     """
-    <div class="hero-banner">
-        <h1>AI Resume Analyzer & Job Recommendation System</h1>
-        <p>Automated multi-format resume parsing, TF-IDF cosine similarity job matching, skill gap diagnostics, and personalized upskilling roadmaps.</p>
+    <div class="saas-hero">
+        <div class="hero-badge-pill">
+            <span class="status-dot-live"></span> AI CAREER INTELLIGENCE PLATFORM v1.0
+        </div>
+        <h1 class="hero-title-text">
+            Understand your potential. <span class="hero-title-gradient">Discover your next opportunity.</span>
+        </h1>
+        <p class="hero-desc-text">
+            Enterprise qualification benchmarking powered by sublinear TF-IDF vectorization, semantic cosine similarity, 
+            and real-time skill gap synthesis across 10 benchmark industry roles.
+        </p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Render View Based on Navigation Option
 results = st.session_state.analysis_results
 
-# -------------------------------------------------------------
-# TAB 1: DASHBOARD & UPLOAD
-# -------------------------------------------------------------
-if nav_option == "🚀 Dashboard & Upload":
-    st.markdown("### 📤 Upload Resume")
-    
-    col_up, col_info = st.columns([1.8, 1.2])
 
-    with col_up:
+# =============================================================
+# VIEW 1: DASHBOARD
+# =============================================================
+if nav_option == "📊 Dashboard":
+    # Upload Panel (Drag & Drop Styled)
+    col_upload, col_guarantee = st.columns([1.8, 1.2])
+
+    with col_upload:
+        st.markdown(
+            """
+            <div style="margin-bottom:8px; font-size:0.95rem; font-weight:700; color:#F3F6FC;">
+                📥 Ingest Candidate Credentials
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         uploaded_file = st.file_uploader(
-            "Upload your resume in PDF or DOCX format",
+            "Upload Resume (PDF, DOCX)",
             type=["pdf", "docx"],
-            help="Upload a standard PDF or Microsoft Word document (max 10MB)."
+            help="Support for standard PDF (.pdf) and Microsoft Word (.docx) resumes (max 10MB)."
         )
 
         if uploaded_file is not None:
-            st.info(f"📁 Selected File: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
-            if st.button("🚀 Analyze Resume", type="primary", use_container_width=True):
+            st.info(f"📁 Selected: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
+            if st.button("⚡ Run Full AI Analysis", type="primary", use_container_width=True):
                 run_analysis(uploaded_file, uploaded_file.name)
 
-    with col_info:
+    with col_guarantee:
         st.markdown(
             """
-            <div class="custom-card">
-                <h4 style="margin-top:0; color:#1E3A8A;">🔒 Privacy & System Guarantees</h4>
-                <ul style="font-size:0.88rem; color:#374151; padding-left:18px; margin-bottom:0;">
-                    <li><b>In-Memory Parsing:</b> Your resume is processed directly in RAM and never saved to public storage.</li>
-                    <li><b>Bias-Free NLP:</b> Gender, age, marital status, race, and photos are strictly excluded from scoring.</li>
-                    <li><b>Multi-Format:</b> Native support for both <code>.pdf</code> and <code>.docx</code> formats.</li>
-                    <li><b>Scientific Matching:</b> Hybrid TF-IDF vectorization paired with exact skill matrix coverage.</li>
+            <div class="saas-panel" style="padding:18px 20px; height:100%;">
+                <div style="font-size:0.85rem; font-weight:700; color:#27D3C2; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">
+                    🛡️ Security & Privacy Guarantees
+                </div>
+                <ul style="font-size:0.82rem; color:#94A3B8; padding-left:16px; margin:0; line-height:1.6;">
+                    <li><b>Volatile In-Memory Processing:</b> Zero disk retention of uploaded files.</li>
+                    <li><b>Strict Anti-Bias Sanitization:</b> Gender, age, marital status, and religion are stripped prior to scoring.</li>
+                    <li><b>Hybrid Verification:</b> 60% direct skill matrix coverage + 30% semantic TF-IDF.</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    # If results are ready, show Extracted Profile & Skills
     if results:
-        st.markdown("---")
-        st.markdown("### 👤 Parsed Candidate Profile")
-        
-        p_col1, p_col2, p_col3, p_col4 = st.columns(4)
-        
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="saas-panel-header">
+                <h3 class="saas-panel-title">📈 Candidate Executive Overview</h3>
+                <span class="tier-badge tier-excellent">VERIFIED SESSION</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # 4 Core KPI Metric Cards
         prof = results["profile"]
         edu = prof.get("education", {})
         exp = prof.get("experience", {})
-        
-        with p_col1:
+        primary_role = results["primary_role"]
+
+        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+
+        with m_col1:
             st.markdown(
                 f"""
-                <div class="metric-card">
-                    <div class="metric-title">Identified Skills</div>
-                    <div class="metric-value">{results['skill_count']}</div>
-                    <div class="metric-subtitle">Across {len(results['skills_by_category'])} domains</div>
+                <div class="saas-metric-card">
+                    <div class="metric-card-label">Verified Skills</div>
+                    <div class="metric-card-val" style="color:#27D3C2;">{results['skill_count']}</div>
+                    <div class="metric-card-sub">Across {len(results['skills_by_category'])} domains</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-        with p_col2:
+        with m_col2:
             st.markdown(
                 f"""
-                <div class="metric-card">
-                    <div class="metric-title">Primary Degree</div>
-                    <div class="metric-value" style="font-size:1.15rem; font-weight:600; min-height:48px;">
+                <div class="saas-metric-card">
+                    <div class="metric-card-label">Primary Degree</div>
+                    <div class="metric-card-val" style="font-size:1.15rem; min-height:42px;">
                         {edu.get('primary_degree', 'B.Tech / B.S.')}
                     </div>
-                    <div class="metric-subtitle">{edu.get('field_of_study', 'CS / Related')}</div>
+                    <div class="metric-card-sub">{edu.get('field_of_study', 'Computer Science')}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-        with p_col3:
+        with m_col3:
             st.markdown(
                 f"""
-                <div class="metric-card">
-                    <div class="metric-title">Experience Level</div>
-                    <div class="metric-value">{exp.get('estimated_years', 0)} yrs</div>
-                    <div class="metric-subtitle">{exp.get('seniority_level', 'Entry-Level')}</div>
+                <div class="saas-metric-card">
+                    <div class="metric-card-label">Seniority Tier</div>
+                    <div class="metric-card-val">{exp.get('estimated_years', 0)} yrs</div>
+                    <div class="metric-card-sub">{exp.get('seniority_level', 'Entry-Level')}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-        with p_col4:
-            top_r = results["primary_role"]
+        with m_col4:
             st.markdown(
                 f"""
-                <div class="metric-card">
-                    <div class="metric-title">Top Role Alignment</div>
-                    <div class="metric-value" style="color:#0D9488;">{top_r.get('match_score', 0)}%</div>
-                    <div class="metric-subtitle">{top_r.get('role_title', 'Analyzing')}</div>
+                <div class="saas-metric-card">
+                    <div class="metric-card-label">Primary Role Match</div>
+                    <div class="metric-card-val" style="color:#648CFF;">{primary_role.get('match_score', 0)}%</div>
+                    <div class="metric-card-sub">{primary_role.get('role_title', 'Analyzing')}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        # Categorized Skills Section
-        st.markdown("#### 🛠️ Detected Technical Skills")
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+
+        # Overview: Primary Role Circular Score & Top 3 Recommendations
+        col_score_chart, col_top_roles = st.columns([1.2, 1.8])
+
+        with col_score_chart:
+            st.markdown(
+                f"""
+                <div class="saas-panel" style="text-align:center; height:100%;">
+                    <div style="font-size:0.8rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">
+                        Primary Role Compatibility
+                    </div>
+                    <h3 style="color:#F3F6FC; margin:0 0 10px 0;">{primary_role.get('role_title')}</h3>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # Circular Gauge Chart in Plotly
+            score_val = primary_role.get("match_score", 0.0)
+            fig_score_radial = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=score_val,
+                number={"suffix": "%", "font": {"size": 42, "color": "#27D3C2", "family": "Plus Jakarta Sans"}},
+                gauge={
+                    "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#232F4A", "tickfont": {"color": "#94A3B8"}},
+                    "bar": {"color": "#27D3C2", "thickness": 0.28},
+                    "bgcolor": "#111827",
+                    "borderwidth": 1,
+                    "bordercolor": "#232F4A",
+                    "steps": [
+                        {"range": [0, 40], "color": "rgba(244, 63, 94, 0.12)"},
+                        {"range": [40, 65], "color": "rgba(245, 158, 11, 0.12)"},
+                        {"range": [65, 80], "color": "rgba(100, 140, 255, 0.15)"},
+                        {"range": [80, 100], "color": "rgba(39, 211, 194, 0.2)"}
+                    ],
+                    "threshold": {
+                        "line": {"color": "#27D3C2", "width": 3},
+                        "thickness": 0.8,
+                        "value": 75
+                    }
+                }
+            ))
+            fig_score_radial.update_layout(
+                paper_bgcolor="#171F32",
+                plot_bgcolor="#171F32",
+                height=230,
+                margin=dict(l=20, r=20, t=10, b=10)
+            )
+            st.plotly_chart(fig_score_radial, use_container_width=True)
+
+            st.markdown(
+                f"""
+                    <div style="font-size:0.82rem; color:#94A3B8; margin-top:6px;">
+                        <b>Assessment:</b> <span style="color:#27D3C2;">{primary_role.get('readiness', 'Ready')}</span><br/>
+                        <span style="font-size:0.78rem;">{primary_role.get('readiness_desc', '')}</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with col_top_roles:
+            st.markdown(
+                """
+                <div class="saas-panel" style="height:100%;">
+                    <div class="saas-panel-header">
+                        <h4 class="saas-panel-title">🎯 Top 3 Target Roles</h4>
+                        <span style="font-size:0.75rem; color:#94A3B8;">Multi-factor weighted match</span>
+                    </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            for i, r in enumerate(results["top_roles"]):
+                score = r["match_score"]
+                tier_class = "tier-excellent" if score >= 75 else ("tier-good" if score >= 55 else "tier-moderate")
+                matched_cnt = len(r.get("matched_skills", []))
+                req_cnt = r.get("required_skills_count", 0)
+                
+                st.markdown(
+                    f"""
+                    <div style="background:#111827; border:1px solid #232F4A; border-radius:10px; padding:14px 16px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-weight:800; font-size:0.85rem; color:#648CFF;">#{i+1}</span>
+                                <span style="font-weight:700; font-size:0.95rem; color:#F3F6FC;">{r['role_title']}</span>
+                                <span style="font-size:0.75rem; color:#94A3B8;">&bull; {r['category']}</span>
+                            </div>
+                            <span class="tier-badge {tier_class}">{score}% MATCH</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:#94A3B8; margin-bottom:8px;">
+                            Required Skills: <span style="color:#27D3C2; font-weight:600;">{matched_cnt}/{req_cnt} verified ({r['skill_coverage_pct']}%)</span> &bull; {r['avg_salary']}
+                        </div>
+                        <div style="background:#232F4A; border-radius:4px; height:6px; overflow:hidden;">
+                            <div style="background:linear-gradient(90deg, #27D3C2, #648CFF); height:100%; width:{min(100.0, score)}%;"></div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Overview: Skills Breakdown Preview
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="saas-panel">
+                <div class="saas-panel-header">
+                    <h4 class="saas-panel-title">🛠️ Competency Breakdown</h4>
+                    <span style="font-size:0.78rem; color:#94A3B8;">Categorized skill clusters</span>
+                </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         by_cat = results["skills_by_category"]
         if by_cat:
-            cat_cols = st.columns(len(by_cat))
-            for idx, (category, skills) in enumerate(by_cat.items()):
+            cat_cols = st.columns(min(4, len(by_cat)))
+            for idx, (cat_name, skills_list) in enumerate(by_cat.items()):
                 with cat_cols[idx % len(cat_cols)]:
-                    st.markdown(f"**{category}** ({len(skills)})")
-                    badges_html = " ".join([f"<span class='badge-skill'>{s}</span>" for s in skills])
-                    st.markdown(badges_html, unsafe_allow_html=True)
+                    st.markdown(f"<div style='font-size:0.8rem; font-weight:700; color:#648CFF; margin-bottom:6px;'>{cat_name.upper()} ({len(skills_list)})</div>", unsafe_allow_html=True)
+                    tags_html = " ".join([f"<span class='skill-tag-matched'>✓ {s}</span>" for s in skills_list])
+                    st.markdown(tags_html, unsafe_allow_html=True)
                     st.write("")
-        else:
-            st.info("No predefined technical skills found. Check the extracted text below.")
-
-        # Interactive Expander for Extracted Sections & Raw Text
-        with st.expander("📄 View Parsed Resume Sections & Text Inspector"):
-            t1, t2, t3 = st.tabs(["Structured Sections", "Cleaned Text", "Raw Extracted Text"])
-            with t1:
-                for sec, content in results["sections"].items():
-                    if content.strip():
-                        st.markdown(f"**{sec.upper()}**")
-                        st.text(content[:800] + ("..." if len(content) > 800 else ""))
-            with t2:
-                st.text_area("Cleaned Text", results["cleaned_text"], height=200)
-            with t3:
-                st.text_area("Raw Text", results["raw_text"], height=200)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
         st.markdown(
             """
-            <div style="text-align:center; padding: 40px 20px; color:#6B7280;">
-                <h4>No resume analyzed yet</h4>
-                <p>Upload your resume using the box above or click <b>'Load & Analyze Sample'</b> in the sidebar to test immediately.</p>
+            <div class="saas-panel" style="text-align:center; padding:50px 20px;">
+                <div style="font-size:2.8rem; margin-bottom:12px;">📊</div>
+                <h3 style="color:#F3F6FC; margin:0 0 8px 0;">No Candidate Profile Loaded</h3>
+                <p style="color:#94A3B8; font-size:0.9rem; max-width:540px; margin:0 auto 20px auto;">
+                    Upload a resume using the box above or select a pre-built benchmark from the sidebar to inspect instant intelligence.
+                </p>
             </div>
             """,
             unsafe_allow_html=True
         )
 
 
-# -------------------------------------------------------------
-# TAB 2: JOB RECOMMENDATIONS
-# -------------------------------------------------------------
-elif nav_option == "🎯 Job Recommendations":
-    st.markdown("### 🎯 Top 3 Recommended Job Roles")
+# =============================================================
+# VIEW 2: RESUME ANALYZER (DEEP DIVE)
+# =============================================================
+elif nav_option == "📄 Resume Analyzer":
+    st.markdown("### 📄 Resume Parsing & Entity Diagnostics")
     
     if not results:
-        st.warning("Please upload and analyze a resume first in the 'Dashboard & Upload' section or pick a demo sample.")
+        st.warning("Upload a resume or select a benchmark sample to inspect parsing details.")
+    else:
+        tab_sec, tab_clean, tab_raw = st.tabs(["Structured Section Inspector", "Cleaned Text Stream", "Raw Extracted Text"])
+        
+        with tab_sec:
+            st.markdown(
+                """
+                <div class="saas-panel">
+                    <div class="saas-panel-header">
+                        <h4 class="saas-panel-title">Segmented Document Boundaries</h4>
+                        <span style="font-size:0.75rem; color:#27D3C2;">Regex Heuristic Segmentation</span>
+                    </div>
+                """,
+                unsafe_allow_html=True
+            )
+            for sec, content in results["sections"].items():
+                if content.strip():
+                    with st.expander(f"📌 {sec.upper()} SECTION", expanded=True):
+                        st.markdown(f"<div style='font-family:JetBrains Mono, monospace; font-size:0.82rem; color:#ADC3FF;'>{content}</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with tab_clean:
+            st.text_area("Normalized Vectorization Text Stream", results["cleaned_text"], height=320)
+
+        with tab_raw:
+            st.text_area("Raw Extracted Stream", results["raw_text"], height=320)
+
+
+# =============================================================
+# VIEW 3: JOB RECOMMENDATIONS
+# =============================================================
+elif nav_option == "🎯 Job Recommendations":
+    st.markdown("### 🎯 Benchmark Job Role Recommendations")
+
+    if not results:
+        st.warning("Please upload a resume or choose a benchmark sample first.")
     else:
         top_roles = results["top_roles"]
         
-        # 3 Top Recommendation Cards
-        card_cols = st.columns(3)
-        for i, role in enumerate(top_roles):
-            with card_cols[i]:
+        # 3 Role Cards Grid
+        r_cols = st.columns(3)
+        for idx, role in enumerate(top_roles):
+            with r_cols[idx]:
                 score = role["match_score"]
-                tier_color = "#059669" if score >= 75 else ("#2563EB" if score >= 55 else ("#D97706" if score >= 35 else "#DC2626"))
+                tier_class = "tier-excellent" if score >= 75 else ("tier-good" if score >= 55 else "tier-moderate")
                 
                 st.markdown(
                     f"""
-                    <div class="custom-card" style="border-top: 4px solid {tier_color}; min-height: 380px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.85rem; font-weight:700; color:#6B7280;">RANK #{i+1}</span>
-                            <span style="background:{tier_color}20; color:{tier_color}; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:10px;">
-                                {role['match_tier']}
-                            </span>
-                        </div>
-                        <h3 style="margin: 8px 0 4px 0; color:#1E3A8A;">{role['role_title']}</h3>
-                        <p style="font-size:0.82rem; color:#6B7280; margin-bottom:12px;">{role['category']} &bull; {role['avg_salary']}</p>
-                        <div style="text-align:center; margin: 14px 0;">
-                            <div style="font-size:2.8rem; font-weight:800; color:{tier_color}; line-height:1;">
-                                {score}%
+                    <div class="role-recommend-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="role-card-rank">RANK #{idx+1}</span>
+                                <span class="tier-badge {tier_class}">{role['match_tier']}</span>
                             </div>
-                            <div style="font-size:0.8rem; color:#6B7280;">Overall Match Index</div>
+                            <div class="role-card-title">{role['role_title']}</div>
+                            <div class="role-card-meta">{role['category']} &bull; {role['avg_salary']}</div>
+                            <div class="role-score-display">
+                                <div class="role-score-number">{score}%</div>
+                                <div class="role-score-label">MATCH INDEX</div>
+                            </div>
+                            <div style="background:#232F4A; border-radius:4px; height:6px; overflow:hidden; margin-bottom:14px;">
+                                <div style="background:linear-gradient(90deg, #27D3C2, #648CFF); height:100%; width:{min(100.0, score)}%;"></div>
+                            </div>
+                            <div style="font-size:0.82rem; color:#94A3B8; margin-bottom:8px;">
+                                <b>Required Skills Coverage:</b> <span style="color:#27D3C2; font-weight:600;">{len(role['matched_skills'])} of {role['required_skills_count']} ({role['skill_coverage_pct']}%)</span>
+                            </div>
                         </div>
-                        <div style="font-size:0.84rem; color:#374151; margin-bottom:12px;">
-                            <b>Required Skills Matched:</b> {len(role['matched_skills'])} of {role['required_skills_count']} ({role['skill_coverage_pct']}%)
-                        </div>
-                        <div style="font-size:0.82rem; color:#4B5563; font-style:italic;">
+                        <div style="font-size:0.78rem; color:#ADC3FF; font-style:italic; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px; margin-top:10px;">
                             "{role.get('readiness_desc', '')}"
                         </div>
                     </div>
@@ -552,178 +1102,193 @@ elif nav_option == "🎯 Job Recommendations":
                     unsafe_allow_html=True
                 )
 
-        # Plotly Score Comparison & Component Breakdown
-        st.markdown("---")
-        st.markdown("#### 📊 Matching Score Breakdown Across All Evaluated Roles")
-
-        all_matches_df = pd.DataFrame(results["all_matches"])
-        
+        # Plotly Visualizations in Dark Mode
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
         chart_col1, chart_col2 = st.columns([1.5, 1.2])
 
         with chart_col1:
+            all_matches_df = pd.DataFrame(results["all_matches"])
             fig_bar = px.bar(
                 all_matches_df.sort_values(by="match_score", ascending=True),
                 x="match_score",
                 y="role_title",
                 orientation="h",
                 text="match_score",
-                title="Job Role Compatibility Index (%)",
-                labels={"match_score": "Match Score (%)", "role_title": "Job Role"},
+                title="Compatibility Across All 10 Benchmark Roles (%)",
+                labels={"match_score": "Match Score (%)", "role_title": "Target Role"},
                 color="match_score",
-                color_continuous_scale="Viridis"
+                color_continuous_scale=["#1E2942", "#648CFF", "#27D3C2"]
             )
             fig_bar.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-            fig_bar.update_layout(height=420, margin=dict(l=10, r=20, t=40, b=10))
+            fig_bar.update_layout(
+                paper_bgcolor="#171F32",
+                plot_bgcolor="#171F32",
+                font=dict(color="#F3F6FC", family="Plus Jakarta Sans"),
+                height=430,
+                margin=dict(l=10, r=20, t=40, b=10),
+                xaxis=dict(gridcolor="rgba(255,255,255,0.06)", tickfont=dict(color="#94A3B8")),
+                yaxis=dict(gridcolor="rgba(255,255,255,0.06)", tickfont=dict(color="#94A3B8")),
+                coloraxis_showscale=False
+            )
             st.plotly_chart(fig_bar, use_container_width=True)
 
         with chart_col2:
-            # Component breakdown for top 3 roles
             breakdown_data = []
             for r in top_roles:
                 breakdown_data.append({
                     "Role": r["role_title"],
                     "Skill Coverage (60%)": r["skill_coverage_pct"] * 0.60,
                     "TF-IDF Semantic Match (30%)": r["cosine_similarity_pct"] * 0.30,
-                    "Preferred Skills Bonus (10%)": min(10.0, len(r.get("matched_preferred", [])) * 2.5)
+                    "Preferred Bonus (10%)": min(10.0, len(r.get("matched_preferred", [])) * 2.5)
                 })
-            
             b_df = pd.DataFrame(breakdown_data).set_index("Role")
             fig_stack = px.bar(
                 b_df,
                 barmode="stack",
-                title="Scoring Component Attribution",
+                title="Mathematical Component Attribution",
                 labels={"value": "Weighted Points", "Role": "Job Role"},
-                color_discrete_sequence=["#3B82F6", "#10B981", "#F59E0B"]
+                color_discrete_sequence=["#27D3C2", "#648CFF", "#A78BFA"]
             )
-            fig_stack.update_layout(height=420, margin=dict(l=10, r=20, t=40, b=10))
+            fig_stack.update_layout(
+                paper_bgcolor="#171F32",
+                plot_bgcolor="#171F32",
+                font=dict(color="#F3F6FC", family="Plus Jakarta Sans"),
+                height=430,
+                margin=dict(l=10, r=20, t=40, b=10),
+                xaxis=dict(gridcolor="rgba(255,255,255,0.06)", tickfont=dict(color="#94A3B8")),
+                yaxis=dict(gridcolor="rgba(255,255,255,0.06)", tickfont=dict(color="#94A3B8")),
+                legend=dict(font=dict(color="#94A3B8"))
+            )
             st.plotly_chart(fig_stack, use_container_width=True)
 
 
-# -------------------------------------------------------------
-# TAB 3: SKILL GAP ANALYSIS
-# -------------------------------------------------------------
+# =============================================================
+# VIEW 4: SKILL GAP ANALYSIS
+# =============================================================
 elif nav_option == "🔍 Skill Gap Analysis":
-    st.markdown("### 🔍 In-Depth Skill Gap & Competency Analysis")
+    st.markdown("### 🔍 Granular Skill Gap & Competency Analysis")
 
     if not results:
-        st.warning("Please upload and analyze a resume first in the 'Dashboard & Upload' section or pick a demo sample.")
+        st.warning("Please upload a resume or select a benchmark sample first.")
     else:
-        # Allow user to choose ANY job role in database for gap analysis
         all_role_titles = [r["role_title"] for r in results["all_matches"]]
         selected_role_title = st.selectbox(
-            "Select target job role to analyze skill requirements:",
+            "Select Target Role to Benchmark Against:",
             all_role_titles,
             index=0
         )
 
         selected_role = next((r for r in results["all_matches"] if r["role_title"] == selected_role_title), results["primary_role"])
 
-        col_g1, col_g2 = st.columns([1.2, 1.8])
+        col_role_details, col_gauge = st.columns([1.3, 1.7])
 
-        with col_g1:
+        with col_role_details:
             st.markdown(
                 f"""
-                <div class="custom-card">
-                    <h3 style="margin-top:0; color:#1E3A8A;">{selected_role['role_title']}</h3>
-                    <p style="font-size:0.86rem; color:#4B5563;">{selected_role['description']}</p>
-                    <hr style="margin:12px 0; border:0; border-top:1px solid #E5E7EB;"/>
-                    <div style="margin-bottom:8px;"><b>Experience Level:</b> {selected_role['experience_level']}</div>
-                    <div style="margin-bottom:8px;"><b>Minimum Education:</b> {selected_role['min_education']}</div>
-                    <div style="margin-bottom:8px;"><b>Typical Compensation:</b> {selected_role['avg_salary']}</div>
-                    <div style="margin-bottom:8px;"><b>Key Responsibilities:</b><br/>
-                        <span style="font-size:0.82rem; color:#6B7280;">{selected_role['key_responsibilities']}</span>
-                    </div>
+                <div class="saas-panel" style="height:100%;">
+                    <h3 style="color:#F3F6FC; margin:0 0 4px 0;">{selected_role['role_title']}</h3>
+                    <div style="font-size:0.8rem; color:#27D3C2; margin-bottom:12px;">{selected_role['category']} &bull; {selected_role['experience_level']}</div>
+                    <p style="font-size:0.84rem; color:#94A3B8; line-height:1.5;">{selected_role['description']}</p>
+                    <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:12px 0;"/>
+                    <div style="font-size:0.8rem; color:#ADC3FF;"><b>Min Education:</b> {selected_role['min_education']}</div>
+                    <div style="font-size:0.8rem; color:#ADC3FF;"><b>Typical Compensation:</b> {selected_role['avg_salary']}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        with col_g2:
-            # Gauge chart for selected role match
-            fig_gauge = go.Figure(go.Indicator(
+        with col_gauge:
+            score_val = selected_role["match_score"]
+            fig_g = go.Figure(go.Indicator(
                 mode="gauge+number",
-                value=selected_role["match_score"],
-                title={"text": f"<b>{selected_role['role_title']} Match</b>", "font": {"size": 18}},
-                number={"suffix": "%", "font": {"size": 36, "color": "#1E3A8A"}},
+                value=score_val,
+                title={"text": f"<b>{selected_role['role_title']} Readiness</b>", "font": {"size": 16, "color": "#F3F6FC"}},
+                number={"suffix": "%", "font": {"size": 38, "color": "#27D3C2", "family": "Plus Jakarta Sans"}},
                 gauge={
-                    "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "darkblue"},
-                    "bar": {"color": "#3B82F6"},
-                    "bgcolor": "white",
-                    "borderwidth": 2,
-                    "bordercolor": "#E5E7EB",
+                    "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#232F4A", "tickfont": {"color": "#94A3B8"}},
+                    "bar": {"color": "#27D3C2"},
+                    "bgcolor": "#111827",
+                    "borderwidth": 1,
+                    "bordercolor": "#232F4A",
                     "steps": [
-                        {"range": [0, 35], "color": "#FEE2E2"},
-                        {"range": [35, 55], "color": "#FEF3C7"},
-                        {"range": [55, 75], "color": "#DBEAFE"},
-                        {"range": [75, 100], "color": "#D1FAE5"}
+                        {"range": [0, 40], "color": "rgba(244, 63, 94, 0.15)"},
+                        {"range": [40, 65], "color": "rgba(245, 158, 11, 0.15)"},
+                        {"range": [65, 80], "color": "rgba(100, 140, 255, 0.15)"},
+                        {"range": [80, 100], "color": "rgba(39, 211, 194, 0.18)"}
                     ],
-                    "threshold": {
-                        "line": {"color": "#059669", "width": 4},
-                        "thickness": 0.75,
-                        "value": 75
-                    }
+                    "threshold": {"line": {"color": "#27D3C2", "width": 3}, "thickness": 0.8, "value": 75}
                 }
             ))
-            fig_gauge.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20))
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            fig_g.update_layout(
+                paper_bgcolor="#171F32",
+                plot_bgcolor="#171F32",
+                height=260,
+                margin=dict(l=20, r=20, t=30, b=20)
+            )
+            st.plotly_chart(fig_g, use_container_width=True)
 
-        st.markdown("---")
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         
-        # Matched vs Missing Skills Badges
-        col_matched, col_missing = st.columns(2)
+        # Matched vs Missing Skills Badges Grid
+        col_m, col_g = st.columns(2)
 
-        with col_matched:
+        with col_m:
             st.markdown(
                 f"""
-                <div class="custom-card" style="border-top: 4px solid #10B981;">
-                    <h4 style="color:#065F46; margin-top:0;">✅ Matched Required Skills ({len(selected_role['matched_skills'])})</h4>
-                    <p style="font-size:0.82rem; color:#4B5563;">Skills successfully detected in your resume:</p>
-                </div>
+                <div class="saas-panel" style="border-top: 3px solid #27D3C2; height:100%;">
+                    <div class="saas-panel-header">
+                        <h4 class="saas-panel-title">✅ Matched Required Skills ({len(selected_role['matched_skills'])})</h4>
+                        <span class="tier-badge tier-excellent">VERIFIED</span>
+                    </div>
                 """,
                 unsafe_allow_html=True
             )
             if selected_role['matched_skills']:
-                matched_html = " ".join([f"<span class='badge-matched'>✓ {s}</span>" for s in selected_role['matched_skills']])
-                st.markdown(matched_html, unsafe_allow_html=True)
+                tags = " ".join([f"<span class='skill-tag-matched'>✓ {s}</span>" for s in selected_role['matched_skills']])
+                st.markdown(tags, unsafe_allow_html=True)
             else:
-                st.info("No direct skill matches found for this specific role.")
+                st.info("No direct skill matches found for this role.")
 
             if selected_role.get("matched_preferred"):
-                st.markdown("<br/><b>⭐ Bonus Preferred Skills Matched:</b>", unsafe_allow_html=True)
-                pref_html = " ".join([f"<span class='badge-preferred'>★ {s}</span>" for s in selected_role['matched_preferred']])
-                st.markdown(pref_html, unsafe_allow_html=True)
+                st.markdown("<br/><span style='font-size:0.8rem; font-weight:700; color:#C4B5FD;'>★ BONUS PREFERRED SKILLS DETECTED:</span>", unsafe_allow_html=True)
+                pref_tags = " ".join([f"<span class='skill-tag-preferred'>★ {s}</span>" for s in selected_role['matched_preferred']])
+                st.markdown(pref_tags, unsafe_allow_html=True)
 
-        with col_missing:
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with col_g:
             st.markdown(
                 f"""
-                <div class="custom-card" style="border-top: 4px solid #EF4444;">
-                    <h4 style="color:#991B1B; margin-top:0;">❌ Missing Skills to Bridge ({len(selected_role['missing_skills'])})</h4>
-                    <p style="font-size:0.82rem; color:#4B5563;">Skills required for this role not found on your resume:</p>
-                </div>
+                <div class="saas-panel" style="border-top: 3px solid #F59E0B; height:100%;">
+                    <div class="saas-panel-header">
+                        <h4 class="saas-panel-title">❌ Missing Skills to Bridge ({len(selected_role['missing_skills'])})</h4>
+                        <span class="tier-badge tier-moderate">ACTION REQUIRED</span>
+                    </div>
                 """,
                 unsafe_allow_html=True
             )
             if selected_role['missing_skills']:
-                missing_html = " ".join([f"<span class='badge-missing'>✗ {s}</span>" for s in selected_role['missing_skills']])
-                st.markdown(missing_html, unsafe_allow_html=True)
-                st.caption("Tip: Add these to your study roadmap below to become a top candidate.")
+                missing_tags = " ".join([f"<span class='skill-tag-missing'>✗ {s}</span>" for s in selected_role['missing_skills']])
+                st.markdown(missing_tags, unsafe_allow_html=True)
+                st.caption("Strategic gaps to bridge in your learning roadmap below.")
             else:
-                st.success("🎉 Outstanding! You meet 100% of the core required technical skills for this role.")
+                st.success("🎉 Exceptional alignment! You possess 100% of the core competencies for this role.")
+
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
-# -------------------------------------------------------------
-# TAB 4: PERSONALIZED LEARNING ROADMAP
-# -------------------------------------------------------------
+# =============================================================
+# VIEW 5: LEARNING ROADMAP
+# =============================================================
 elif nav_option == "🗺️ Learning Roadmap":
-    st.markdown("### 🗺️ Personalized Upskilling Roadmap")
+    st.markdown("### 🗺️ Tailored Strategic Upskilling Roadmap")
 
     if not results:
-        st.warning("Please upload and analyze a resume first in the 'Dashboard & Upload' section or pick a demo sample.")
+        st.warning("Please upload a resume or select a benchmark sample first.")
     else:
-        # Target role selector for roadmap
         all_role_titles = [r["role_title"] for r in results["all_matches"]]
         active_target_title = st.selectbox(
-            "Select target role for tailored roadmap:",
+            "Select Target Role for Upskilling Strategy:",
             all_role_titles,
             index=0
         )
@@ -731,77 +1296,87 @@ elif nav_option == "🗺️ Learning Roadmap":
         active_target_role = next((r for r in results["all_matches"] if r["role_title"] == active_target_title), results["primary_role"])
         roadmap = roadmap_gen.generate_roadmap(active_target_role, results["detected_skills"])
 
-        # Overview Stats
         st.markdown(
             f"""
-            <div class="custom-card" style="background:#F0FDF4; border: 1px solid #BBF7D0;">
-                <h4 style="color:#166534; margin:0 0 6px 0;">🎯 Target Role: {roadmap['target_role']}</h4>
-                <div style="font-size:0.9rem; color:#15803D;">
-                    Estimated study investment: <b>~{roadmap['total_estimated_hours']} hours</b> across <b>~{roadmap['estimated_weeks']} weeks</b> (15 hrs/wk) to close {roadmap['missing_skills_count']} skill gaps.
+            <div class="saas-panel" style="background:rgba(39, 211, 194, 0.05); border-color:rgba(39, 211, 194, 0.25);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:0.75rem; font-weight:700; color:#27D3C2; text-transform:uppercase; letter-spacing:0.04em;">Target Strategic Milestone</div>
+                        <h3 style="color:#F3F6FC; margin:2px 0 0 0;">{roadmap['target_role']}</h3>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:1.3rem; font-weight:800; color:#27D3C2;">~{roadmap['total_estimated_hours']} hrs</span>
+                        <div style="font-size:0.75rem; color:#94A3B8;">Across ~{roadmap['estimated_weeks']} weeks (15 hrs/wk)</div>
+                    </div>
                 </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        if roadmap["perfect_match"]:
-            st.balloons()
-            st.success("🌟 You have 100% of the required skills for this role! Focus on system design, mock interviews, and advanced architecture.")
-
-        # Display Phases
+        # Vertical Timeline Node Layout
+        st.markdown("#### ⏳ Structured Curriculum Timeline")
         for phase in roadmap["phases"]:
-            skills_in_phase = phase["skills"]
-            if skills_in_phase:
-                with st.expander(f"📌 {phase['phase_name']} &bull; {phase['duration']}", expanded=True):
-                    st.markdown(f"*{phase['objective']}*")
-                    st.write("")
-                    
-                    skill_cols = st.columns(min(3, len(skills_in_phase)))
-                    for idx, s in enumerate(skills_in_phase):
-                        with skill_cols[idx % len(skill_cols)]:
-                            st.markdown(
-                                f"""
-                                <div class="custom-card" style="border-left: 3px solid #3B82F6; margin-bottom:10px; padding:12px 14px;">
-                                    <div style="font-weight:700; color:#1E3A8A; font-size:0.95rem;">{s['skill_name']}</div>
-                                    <div style="font-size:0.75rem; color:#6B7280; margin: 2px 0 6px 0;">
-                                        {s['category']} &bull; {s['difficulty_level']} &bull; ~{s['estimated_learning_hours']} hrs
-                                    </div>
-                                    <div style="font-size:0.8rem; margin-top:6px;">
-                                        <b>Course:</b> <span style="color:#059669;">{s['free_course']}</span>
-                                    </div>
-                                    <div style="margin-top:8px;">
-                                        <a href="{s['doc_url']}" target="_blank" style="font-size:0.78rem; text-decoration:none; color:#2563EB;">
-                                            📖 Official Documentation &rarr;
-                                        </a>
-                                    </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-
-        # Capstone Projects
-        st.markdown("---")
-        st.markdown("### 🏆 Recommended Capstone Portfolio Projects")
-        st.caption("Build these projects to showcase your bridged skills directly on your resume and GitHub:")
-
-        proj_cols = st.columns(3)
-        for idx, p in enumerate(roadmap["capstone_projects"]):
-            with proj_cols[idx]:
+            if phase.get("skills"):
                 st.markdown(
                     f"""
-                    <div class="custom-card" style="min-height:360px;">
-                        <h4 style="color:#1E3A8A; margin-top:0;">{p['title']}</h4>
-                        <p style="font-size:0.82rem; color:#4B5563;">{p['concept']}</p>
-                        <div style="font-size:0.8rem; color:#1E429F; background:#EFF6FF; padding:6px 10px; border-radius:6px; margin:10px 0;">
-                            <b>Tech Stack:</b> {p['tech_stack']}
+                    <div class="timeline-node">
+                        <div class="timeline-dot"></div>
+                        <div style="font-size:0.8rem; font-weight:700; color:#648CFF; text-transform:uppercase;">
+                            {phase['duration']}
                         </div>
-                        <div style="font-size:0.8rem; color:#374151;">
-                            <b>Key Highlights:</b><br/>
-                            <span style="font-size:0.78rem; color:#6B7280;">{p['key_features']}</span>
+                        <h4 style="color:#F3F6FC; margin:2px 0 4px 0;">{phase['phase_name']}</h4>
+                        <div style="font-size:0.82rem; color:#94A3B8; margin-bottom:12px;">{phase['objective']}</div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                sk_cols = st.columns(min(3, len(phase["skills"])))
+                for s_idx, s in enumerate(phase["skills"]):
+                    with sk_cols[s_idx % len(sk_cols)]:
+                        st.markdown(
+                            f"""
+                            <div style="background:#111827; border:1px solid #232F4A; border-radius:10px; padding:12px 14px; margin-bottom:8px;">
+                                <div style="font-weight:700; color:#27D3C2; font-size:0.92rem;">{s['skill_name']}</div>
+                                <div style="font-size:0.75rem; color:#94A3B8; margin:2px 0 6px 0;">{s['category']} &bull; ~{s['estimated_learning_hours']} hrs</div>
+                                <div style="font-size:0.78rem; color:#ADC3FF; margin-bottom:6px;"><b>Course:</b> {s['free_course']}</div>
+                                <a href="{s['doc_url']}" target="_blank" style="font-size:0.75rem; color:#648CFF; text-decoration:none; font-weight:600;">
+                                    📖 Official Docs &rarr;
+                                </a>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                st.markdown("</div>", unsafe_allow_html=True)
+
+        # Capstone Portfolio Projects
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="saas-panel-header">
+                <h4 class="saas-panel-title">🏆 Portfolio Capstone Projects (STAR Format)</h4>
+                <span style="font-size:0.78rem; color:#94A3B8;">Demonstrate verified mastery to recruiters</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        p_cols = st.columns(3)
+        for p_idx, p in enumerate(roadmap["capstone_projects"]):
+            with p_cols[p_idx]:
+                st.markdown(
+                    f"""
+                    <div class="saas-panel" style="height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                            <h4 style="color:#F3F6FC; margin:0 0 6px 0;">{p['title']}</h4>
+                            <p style="font-size:0.82rem; color:#94A3B8; margin-bottom:10px;">{p['concept']}</p>
+                            <div style="background:#111827; border-radius:6px; padding:6px 10px; font-size:0.78rem; color:#27D3C2; margin-bottom:10px;">
+                                <b>Tech Stack:</b> {p['tech_stack']}
+                            </div>
+                            <div style="font-size:0.78rem; color:#ADC3FF;">{p['key_features']}</div>
                         </div>
-                        <div style="font-size:0.78rem; margin-top:12px; background:#F8FAFC; padding:8px; border-left:2px solid #0D9488;">
-                            <b>Sample Resume Bullet:</b><br/>
-                            <i>"{p['resume_bullet_sample']}"</i>
+                        <div style="background:#111827; border-left:3px solid #648CFF; padding:8px 10px; border-radius:4px; font-size:0.75rem; color:#F3F6FC; margin-top:12px;">
+                            <b>Resume Bullet:</b><br/><i>"{p['resume_bullet_sample']}"</i>
                         </div>
                     </div>
                     """,
@@ -809,20 +1384,36 @@ elif nav_option == "🗺️ Learning Roadmap":
                 )
 
 
-# -------------------------------------------------------------
-# TAB 5: JOB & SKILL DATABASE
-# -------------------------------------------------------------
-elif nav_option == "📊 Job & Skill Database":
-    st.markdown("### 📊 Explore Job Roles & Skill Dictionary")
-    st.caption("Inspect the active benchmarking database powering the AI analyzer.")
+# =============================================================
+# VIEW 6: ANALYSIS HISTORY
+# =============================================================
+elif nav_option == "📜 Analysis History":
+    st.markdown("### 📜 Session History & Audit Trail (SQLite)")
+    st.caption("Demonstrating local database integration (strictly anonymized; zero candidate resume text or PII stored):")
 
-    d_tab1, d_tab2 = st.tabs(["💼 Job Roles Catalog", "🛠️ Skill Dictionary"])
+    try:
+        recent_logs = db_mgr.get_recent_analyses(limit=25)
+        if recent_logs:
+            df_logs = pd.DataFrame(recent_logs)
+            st.dataframe(df_logs, use_container_width=True, hide_index=True)
+        else:
+            st.info("No session records found in local database.")
+    except Exception as e:
+        st.warning(f"Database error: {e}")
 
-    with d_tab1:
-        st.markdown("#### Built-in Target Job Roles")
-        roles_df = job_matcher.roles_df
+
+# =============================================================
+# VIEW 7: JOB & SKILL CATALOG
+# =============================================================
+elif nav_option == "⚙️ Job & Skill Catalog":
+    st.markdown("### ⚙️ Benchmark Knowledge Base")
+    st.caption("Explore the 10 enterprise target roles and 60 verified technical skills powering the platform.")
+
+    cat_tab1, cat_tab2 = st.tabs(["💼 Enterprise Job Roles (10)", "🛠️ Verified Skills Taxonomy (60)"])
+
+    with cat_tab1:
         st.dataframe(
-            roles_df[[
+            job_matcher.roles_df[[
                 "role_id", "role_title", "category", "experience_level",
                 "avg_salary", "required_skills", "preferred_skills"
             ]],
@@ -830,18 +1421,14 @@ elif nav_option == "📊 Job & Skill Database":
             hide_index=True
         )
 
-    with d_tab2:
-        st.markdown("#### Verified Skill Catalog & Learning Resources")
+    with cat_tab2:
         skills_df = skill_extractor.skills_df
+        categories = ["All Domains"] + sorted(list(skills_df["category"].dropna().unique()))
+        selected_cat = st.selectbox("Domain Filter:", categories)
         
-        # Category Filter
-        categories = ["All"] + sorted(list(skills_df["category"].dropna().unique()))
-        selected_cat = st.selectbox("Filter by Category:", categories)
-        
-        filtered_skills = skills_df if selected_cat == "All" else skills_df[skills_df["category"] == selected_cat]
-        
+        filtered = skills_df if selected_cat == "All Domains" else skills_df[skills_df["category"] == selected_cat]
         st.dataframe(
-            filtered_skills[[
+            filtered[[
                 "skill_id", "skill_name", "category", "difficulty_level",
                 "estimated_learning_hours", "free_course", "doc_url"
             ]],
@@ -850,35 +1437,32 @@ elif nav_option == "📊 Job & Skill Database":
         )
 
 
-# -------------------------------------------------------------
-# TAB 6: DOWNLOAD REPORT
-# -------------------------------------------------------------
+# =============================================================
+# VIEW 8: DOWNLOAD REPORT
+# =============================================================
 elif nav_option == "📥 Download Report":
-    st.markdown("### 📥 Download Resume Analysis Report")
-    st.caption("Generate publication-ready PDF or formatted Markdown reports.")
+    st.markdown("### 📥 Publication-Ready Diagnostic Reports")
 
     if not results:
-        st.warning("Please upload and analyze a resume first in the 'Dashboard & Upload' section or pick a demo sample.")
+        st.warning("Please upload a resume or select a benchmark sample first.")
     else:
-        col_down1, col_down2 = st.columns(2)
+        d_col1, d_col2 = st.columns(2)
 
-        with col_down1:
+        with d_col1:
             st.markdown(
                 """
-                <div class="custom-card" style="text-align:center; padding:30px 20px;">
-                    <div style="font-size:2.5rem; margin-bottom:10px;">📄</div>
-                    <h3 style="margin:0 0 8px 0; color:#1E3A8A;">Formal PDF Report</h3>
-                    <p style="font-size:0.85rem; color:#6B7280; margin-bottom:20px;">
-                        Complete analysis report generated via ReportLab including candidate profile, match scores, skill gap table, roadmap, and ethical AI notice.
+                <div class="saas-panel" style="text-align:center; padding:28px 20px;">
+                    <div style="font-size:2.5rem; margin-bottom:8px;">📄</div>
+                    <h3 style="color:#F3F6FC; margin:0 0 6px 0;">Executive PDF Report</h3>
+                    <p style="font-size:0.84rem; color:#94A3B8; margin-bottom:16px;">
+                        Branded report with candidate profile, match scores, skill gap tables, roadmap, and compliance statements.
                     </p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-
-            # Generate PDF in-memory
-            with st.spinner("Generating PDF report..."):
-                analysis_payload = {
+            with st.spinner("Compiling PDF bytes..."):
+                payload = {
                     "candidate_name": results["candidate_name"],
                     "file_name": results["file_name"],
                     "file_type": results["file_type"],
@@ -889,11 +1473,11 @@ elif nav_option == "📥 Download Report":
                     "top_roles": results["top_roles"],
                     "roadmap": results["roadmap"]
                 }
-                pdf_bytes = generate_pdf_report(analysis_payload)
+                pdf_bytes = generate_pdf_report(payload)
 
-            clean_filename = f"Resume_Analysis_{results['candidate_name'].replace(' ', '_')}.pdf"
+            clean_filename = f"Career_Intelligence_Report_{results['candidate_name'].replace(' ', '_')}.pdf"
             st.download_button(
-                label="⬇️ Download PDF Report",
+                label="⬇️ Download Executive PDF",
                 data=pdf_bytes,
                 file_name=clean_filename,
                 mime="application/pdf",
@@ -901,22 +1485,21 @@ elif nav_option == "📥 Download Report":
                 use_container_width=True
             )
 
-        with col_down2:
+        with d_col2:
             st.markdown(
                 """
-                <div class="custom-card" style="text-align:center; padding:30px 20px;">
-                    <div style="font-size:2.5rem; margin-bottom:10px;">📝</div>
-                    <h3 style="margin:0 0 8px 0; color:#0D9488;">Markdown / Text Summary</h3>
-                    <p style="font-size:0.85rem; color:#6B7280; margin-bottom:20px;">
-                        Lightweight plain-text and GitHub-flavored markdown export ideal for documentation, portfolio READMEs, or quick copy-pasting.
+                <div class="saas-panel" style="text-align:center; padding:28px 20px;">
+                    <div style="font-size:2.5rem; margin-bottom:8px;">📝</div>
+                    <h3 style="color:#F3F6FC; margin:0 0 6px 0;">Structured Markdown</h3>
+                    <p style="font-size:0.84rem; color:#94A3B8; margin-bottom:16px;">
+                        Lightweight plain-text and GitHub-flavored markdown export for offline analysis and developer documentation.
                     </p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-
-            md_content = generate_markdown_report(analysis_payload)
-            clean_md_filename = f"Resume_Analysis_{results['candidate_name'].replace(' ', '_')}.md"
+            md_content = generate_markdown_report(payload)
+            clean_md_filename = f"Career_Intelligence_Report_{results['candidate_name'].replace(' ', '_')}.md"
             st.download_button(
                 label="⬇️ Download Markdown Report",
                 data=md_content,
@@ -926,74 +1509,63 @@ elif nav_option == "📥 Download Report":
                 use_container_width=True
             )
 
-        st.markdown("---")
-        st.markdown("#### 👁️ Live Report Preview")
-        with st.expander("Expand to preview Markdown Report text", expanded=True):
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        with st.expander("👁️ Live Markdown Report Preview", expanded=True):
             st.markdown(md_content)
 
 
-# -------------------------------------------------------------
-# TAB 7: ETHICAL AI & PRIVACY
-# -------------------------------------------------------------
-elif nav_option == "⚖️ Ethical AI & Privacy":
-    st.markdown("### ⚖️ Ethical AI, Privacy Guarantees & System Methodology")
+# =============================================================
+# VIEW 9: PRIVACY & COMPLIANCE
+# =============================================================
+elif nav_option == "⚖️ Privacy & Compliance":
+    st.markdown("### ⚖️ Ethical AI, Privacy Guarantees & Mathematical Formulation")
 
     st.markdown(
         """
-        <div class="ethical-banner">
-            <b>Fundamental Principle:</b> This system is strictly an educational career-guidance and upskilling diagnostic tool.
-            Matching percentages represent heuristic similarity indices rather than definitive employment decisions.
+        <div class="saas-panel" style="border-left: 3px solid #27D3C2;">
+            <div style="font-size:0.85rem; font-weight:700; color:#27D3C2; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">
+                Advisory Scope & Compliance Notice
+            </div>
+            <div style="font-size:0.88rem; color:#F3F6FC; line-height:1.5;">
+                This platform is an educational qualification-diagnostic tool. Matching scores reflect heuristic cosine similarities 
+                and skill coverage indices rather than automated hiring decisions. Demographic attributes (gender, age, marital status, 
+                nationality, religion) are strictly excluded from evaluation.
+            </div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    col_e1, col_e2 = st.columns(2)
+    c_col1, c_col2 = st.columns(2)
 
-    with col_e1:
+    with c_col1:
         st.markdown(
             """
-            <div class="custom-card">
-                <h4 style="color:#1E3A8A; margin-top:0;">🛡️ Privacy & Anti-Bias Architecture</h4>
-                <ul style="font-size:0.88rem; color:#374151; padding-left:18px;">
-                    <li><b>Zero Persistent Storage:</b> Uploaded files are converted into in-memory Byte streams and discarded after the session ends.</li>
-                    <li><b>Strict Exclusion of Protected Attributes:</b> Gender, age, date of birth, marital status, nationality, caste, and religion are sanitized before scoring.</li>
-                    <li><b>No Facial or Photographic Analysis:</b> Resumes with headshots or images are handled strictly through raw text streams.</li>
-                    <li><b>Transparent Algorithmic Rationale:</b> All match scores are accompanied by explicit lists of matched skills and missing skills.</li>
+            <div class="saas-panel" style="height:100%;">
+                <h4 style="color:#F3F6FC; margin:0 0 8px 0;">🛡️ Privacy & Anti-Bias Pipeline</h4>
+                <ul style="font-size:0.84rem; color:#94A3B8; line-height:1.6; padding-left:16px;">
+                    <li><b>Zero Persistent Storage:</b> Processed entirely in volatile RAM streams.</li>
+                    <li><b>Demographic Stripper:</b> Active regex scrubbing removes age, gender, marital status, and religion before feature extraction.</li>
+                    <li><b>Algorithmic Transparency:</b> Match scores provide explicit breakdowns of matched vs missing competencies.</li>
                 </ul>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    with col_e2:
+    with c_col2:
         st.markdown(
             """
-            <div class="custom-card">
-                <h4 style="color:#0D9488; margin-top:0;">📐 Mathematical Matching Methodology</h4>
-                <p style="font-size:0.84rem; color:#374151;">
-                    The system combines two complementary NLP techniques to guarantee both precision and semantic coverage:
-                </p>
-                <ol style="font-size:0.82rem; color:#374151; padding-left:18px;">
-                    <li><b>Skill Matrix Coverage (60% weight):</b> Jaccard overlap between the candidate's verified skills and the mandatory requirements for the target role.</li>
-                    <li><b>TF-IDF Cosine Similarity (30% weight):</b> Sublinear Term Frequency-Inverse Document Frequency vectorization measuring semantic alignment between the resume context and role responsibilities.</li>
-                    <li><b>Preferred Skill Bonus (10% weight):</b> Incremental credit for possessing nice-to-have secondary competencies.</li>
-                </ol>
+            <div class="saas-panel" style="height:100%;">
+                <h4 style="color:#F3F6FC; margin:0 0 8px 0;">📐 Mathematical Formulation</h4>
+                <div style="font-size:0.82rem; color:#94A3B8; line-height:1.6;">
+                    $$\\mathcal{S}_{\\text{match}} = 0.60 \\cdot \\mathcal{C}_{\\text{skills}} + 0.30 \\cdot \\mathcal{S}_{\\text{tfidf}} + 0.10 \\cdot \\mathcal{B}_{\\text{pref}}$$
+                    <br/>
+                    • <b>60% Skill Matrix Coverage:</b> Jaccard overlap of mandatory technical skills.<br/>
+                    • <b>30% TF-IDF Cosine Similarity:</b> Contextual document alignment.<br/>
+                    • <b>10% Preferred Bonus:</b> Nice-to-have secondary competencies.
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
-
-    # Anonymized Analytics Table from SQLite
-    st.markdown("---")
-    st.markdown("#### 📈 Anonymized Session History (SQLite DB)")
-    st.caption("Demonstrating local database integration (no personal resume text or contact details are logged):")
-    
-    try:
-        recent_logs = db_mgr.get_recent_analyses(limit=10)
-        if recent_logs:
-            st.dataframe(pd.DataFrame(recent_logs), use_container_width=True, hide_index=True)
-        else:
-            st.info("No sessions logged yet in the database.")
-    except Exception as e:
-        st.warning(f"Could not load database records: {e}")
